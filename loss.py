@@ -34,7 +34,8 @@ def dumped_oscillation(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Te
     Y_tt = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
     Y_t0 = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
     
-    l_ode = ((Y_tt + 2*zeta*Y_t + Y)**2).mean()
+    # 単振動を再現できない原因を解明するため、一時的に角速度ωを10に設定
+    l_ode = ((Y_tt + 2*zeta*Y_t + 100*Y)**2).mean()
     l_ic1 = ((Y0 - 1)**2).mean()
     l_ic2 = (Y_t0**2).mean()
     
