@@ -10,42 +10,28 @@ epoch:int=config.epoch
 num_plot=config.num_plot
 
 model =fcnn.FCNN()
-# X=sampling.sample_random(config.num_sample,config.in_features)
-# Y=model(X)
-# print(Y)
-# l=loss.physics_loss(Y,X)
-# print(l)
-optimizer=optim.SGD(model.parameters(),lr=1e-2)
-# optimizer.zero_grad()
-# print(model.final.weight.grad)
-# print("\n")
-# print(list(model.final.parameters()))
-# print("\n")
-# l.backward()
-# print(list(model.final.weight.grad))
-# print("\n")
-# optimizer.step()
-# print(list(model.final.parameters()))
-# print(sampling.sample_random_default())
+optimizer=optim.Adam(model.parameters(),lr=1e-3)
 
 for _ in range(epoch):
-    X=sampling.sample_random_default()
-    X.requires_grad=False
+    X=sampling.sample_random_default() * 20
+    X0=torch.zeros_like(X)
+    
+    X.requires_grad_(True)
+    X0.requires_grad_(True)
+    
     Y=model(X)
+    Y0=model(X0)
+    
     optimizer.zero_grad()
-    l=loss.physics_loss(X,Y)
+    l=loss.dumped_oscillation(X,Y,X0,Y0,0.0)
     l.backward()
     optimizer.step()
 
-X_out= torch.tensor([[x/num_plot] for x in range(num_plot)])
+X_out= torch.tensor([[x/num_plot] for x in range(num_plot)])*20
 Y_out=model(X_out)
 XY_out=torch.cat([X_out,Y_out],dim=1)
 np.savetxt("out.txt",XY_out.detach().numpy(),"%.6f")
-print(X_out)
-print(Y_out)
-print(XY_out)
 
-    
 
 
 

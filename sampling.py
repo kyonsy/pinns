@@ -3,6 +3,7 @@ import config
 in_features=config.in_features
 num_sample=config.num_sample
 
+
 def sample_random_default()->torch.Tensor:
     return torch.rand(num_sample,in_features)
 

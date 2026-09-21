@@ -34,5 +34,18 @@ class FCNN(nn.Module):
         return Y
 
 if __name__=='__main__':
+    import fcnn
+    import sampling
+    
     model: FCNN = FCNN()
-    print(model)
+    X=sampling.sample_random_default() * 20
+    X0=torch.zeros_like(X)
+    
+    X.requires_grad_(True)
+    X0.requires_grad_(True)
+    
+    Y=model(X)
+    Y0=model(X0)
+    
+    optimizer.zero_grad()
+    l=loss.dumped_oscillation(X,Y,X0,Y0,0)
