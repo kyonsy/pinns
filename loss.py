@@ -35,15 +35,39 @@ def dumped_oscillation(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Te
     Y_t0 = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
     
     # 単振動を再現できない原因を解明するため、一時的に角速度ωを10に設定
-    l_ode = ((Y_tt + 2*zeta*Y_t + 100*Y)**2).mean()
-    l_ic1 = ((Y0 - 1)**2).mean()
-    l_ic2 = (Y_t0**2).mean()
+    L_ode = ((Y_tt + 2*zeta*Y_t + 25*Y)**2).mean()
+    L_ic1 = ((Y0 - 1)**2).mean()
+    L_ic2 = (Y_t0**2).mean()
     
     # print(zeta)
     # print(type(zeta))
     
-    l= l_ode+l_ic1+l_ic2
-    return l
+    L= L_ode+L_ic1+L_ic2
+    return L
+
+"""
+電磁ポテンシャルに関するPINN
+入力が3つ(x,y,z). 出力が一つ(φ)の系に対するPINN
+Y0は境界条件
+Y1は
+"""
+def potential(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor) -> torch.Tensor:
+    x,y,z = X[0:1],X[1:2],X[2,3]
+    
+    phi_x = torch.autograd.grad(Y,x,torch.ones_like(x),create_graph=True)[0]
+    phi_y = torch.autograd.grad(Y,y,torch.ones_like(y),create_graph=True)[0]
+    phi_z = torch.autograd.grad(Y,z,torch.ones_like(z),create_graph=True)[0]
+    
+    phi_xx = torch.autograd.grad(phi_x,x,torch.ones_like(x),create_graph=True)[0]
+    phi_yy = torch.autograd.grad(phi_y,y,torch.ones_like(y),create_graph=True)[0]
+    phi_zz = torch.autograd.grad(phi_z,z,torch.ones_like(z),create_graph=True)[0]
+    
+    L_ode = ((phi_xx + phi_yy + phi_zz)**2).mean()
+    L_bc  = (Y0**2).mean()
+    
+    L = L_ode + L_bc
+    return L
+    
 
 
 

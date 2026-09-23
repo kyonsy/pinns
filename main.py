@@ -8,12 +8,14 @@ import torch.optim as optim
 
 epoch:int=config.epoch
 num_plot=config.num_plot
+num_sample=config.num_sample
 
 model =fcnn.FCNN()
 optimizer=optim.Adam(model.parameters(),lr=1e-3)
 
 for _ in range(epoch):
     X=sampling.sample_random_default()
+    # X= torch.tensor([[x/num_sample] for x in range(num_sample)])
     X0=torch.zeros_like(X)
     
     X.requires_grad_(True)
@@ -30,7 +32,7 @@ for _ in range(epoch):
 X_out= torch.tensor([[x/num_plot] for x in range(num_plot)])
 Y_out=model(X_out)
 XY_out=torch.cat([X_out,Y_out],dim=1)
-np.savetxt("out.txt",XY_out.detach().numpy(),"%.6f")
+np.savetxt("out.dat",XY_out.detach().numpy(),"%.6f")
 
 
 
