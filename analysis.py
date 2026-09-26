@@ -1,7 +1,7 @@
 import torch
 
 """
-減衰振動 y'' + 2*zeta*y' + y = 0, y(0)=1, y'(0)=0 の厳密解
+減衰振動 y'' + 2*zeta*y' + y = 0, y(0)=1, y'(0)=0 の解析解
 """
 def dumped_oscillation(X:torch.Tensor,zeta:float) -> torch.Tensor:
     if zeta <= 1.0:
