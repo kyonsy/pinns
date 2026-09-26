@@ -1,5 +1,5 @@
 import torch
-import config
+import source.config as config
 
 loss_weights=config.loss_weights
 in_features= config.in_features
@@ -29,7 +29,7 @@ def vertical_throw(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor
     
     return l
 
-def dumped_oscillation(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,zeta:float)->torch.Tensor: 
+def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,zeta:float)->torch.Tensor: 
     Y_t  = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
     Y_tt = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
     Y_t0 = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
@@ -46,46 +46,50 @@ def dumped_oscillation(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Te
     return L
 
 """
-電磁ポテンシャルに関するPINN
-入力が3つ(x,y,z). 出力が一つ(φ)の系に対するPINN
-Y0は境界条件
-Y1は
+ポアソンの方程式に関するPINNの損失関数
+入力が2つ(x,y). 出力が一つ(φ)
+Y0,Y1は境界条件
 """
-def potential(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor) -> torch.Tensor:
-    x,y,z = X[0:1],X[1:2],X[2,3]
+def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
+    dY     = torch.autograd.grad(Y,X,torch.ones_like(Y),create_graph=True)[0]
+    phi_x,phi_y = dY[:,0:1],dY[:,1:2]
     
-    phi_x = torch.autograd.grad(Y,x,torch.ones_like(x),create_graph=True)[0]
-    phi_y = torch.autograd.grad(Y,y,torch.ones_like(y),create_graph=True)[0]
-    phi_z = torch.autograd.grad(Y,z,torch.ones_like(z),create_graph=True)[0]
+    phi_xx = torch.autograd.grad(phi_x,X,torch.ones_like(phi_x),create_graph=True)[0][:,0:1]
+    phi_yy = torch.autograd.grad(phi_y,X,torch.ones_like(phi_y),create_graph=True)[0][:,1:2]
     
-    phi_xx = torch.autograd.grad(phi_x,x,torch.ones_like(x),create_graph=True)[0]
-    phi_yy = torch.autograd.grad(phi_y,y,torch.ones_like(y),create_graph=True)[0]
-    phi_zz = torch.autograd.grad(phi_z,z,torch.ones_like(z),create_graph=True)[0]
+    L_ode  = ((phi_xx + phi_yy)**2).mean()
+    L_bc1  = (Y0**2).mean()
+    L_bc2  = ((Y1-1)**2).mean()
     
-    L_ode = ((phi_xx + phi_yy + phi_zz)**2).mean()
-    L_bc  = (Y0**2).mean()
-    
-    L = L_ode + L_bc
+    L = L_ode + L_bc1 + L_bc2
     return L
     
-
-
-
 if __name__=='__main__':
-    import sampling
-    import fcnn
+    import source.sampling as sampling
+    import source.fcnn as fcnn
 
     model= fcnn.FCNN()
-    X=sampling.sample_random_default() * 20
-    X0=torch.zeros_like(X)
+    X=sampling.sample_grid(100,2)
+    # print(f"Sample in grid {X}\n")
+    # print(f"Shape: {X.shape}")
+    # K=sampling.sample_random(100,2)
+    # print(f"Sample in random {K}")
+    # print(f"Shape: {K.shape}")
+    
+    X0=sampling.sample_square_boundry(100)
+    X1=torch.tensor([[0.5,0.5]])
     
     X.requires_grad_(True)
     X0.requires_grad_(True)
+    X1.requires_grad_(True)
     
     Y=model(X)
     Y0=model(X0)
+    Y1=model(X1)
     
-    l=dumped_oscillation(X,Y,X0,Y0,0.0)
+    l=loss_poisson_sys(X,Y,Y0,Y1)
+    
+    
 
 
     
