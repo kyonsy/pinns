@@ -1,10 +1,12 @@
+#減衰振動に関するPINNについて、ネットワークの解と解析解の間の誤差と、学習区間との関係を調べる
+#減衰比は0で固定(つまり単振動について学習を行う)
+
 import sys
 from pathlib import Path
 
 # プロジェクトルート (script/ の1つ上). どこから実行しても src を import できるようにする
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-(ROOT / "out").mkdir(exist_ok=True)  # clone直後は out/ が無いので作っておく
 
 import torch
 import math
@@ -19,12 +21,12 @@ cfg.load(ROOT / "config/dump_sys.yaml")
 
 for i  in range(1):
     j=i+1
-    t_range = j * math.pi/4
+    trange = j * math.pi/4
     
     model =fcnn.FCNN()
-    train.train_dump_sys(model,t_range)
+    train.train_dump_sys(model,trange,0.0)
     
-    X_out= sampling.sample_grid(cfg.plot_density,[1.0])
+    X_out= sampling.sample_grid(cfg.plot_density,[trange])
     Y_out=model(X_out)
     XY_out=torch.cat([X_out,Y_out],dim=1)
     

@@ -6,10 +6,10 @@ from . import sampling
 from . import loss
 from . import config as cfg
 
-def train_dump_sys(model:nn.Module,t_range:float) -> None:
+def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
     optimizer=optim.Adam(model.parameters(),lr=cfg.learning_rate)
     for _ in range(cfg.epoch):
-        X=sampling.sample_grid(cfg.grid_density,[t_range])
+        X=sampling.sample_grid(cfg.grid_density,[trange])
         X0=torch.zeros_like(X)
         
         X.requires_grad_(True)
@@ -19,7 +19,7 @@ def train_dump_sys(model:nn.Module,t_range:float) -> None:
         Y0=model(X0)
         
         optimizer.zero_grad()
-        l=loss.loss_dump_sys(X,Y,X0,Y0,0.0)
+        l=loss.loss_dump_sys(X,Y,X0,Y0,zeta)
         l.backward()
         optimizer.step()
        

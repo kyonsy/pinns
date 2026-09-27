@@ -4,7 +4,6 @@ from pathlib import Path
 # プロジェクトルート (script/ の1つ上). どこから実行しても src を import できるようにする
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-(ROOT / "out").mkdir(exist_ok=True)  # clone直後は out/ が無いので作っておく
 
 import torch
 import numpy as np

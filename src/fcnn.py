@@ -41,5 +41,5 @@ if __name__=='__main__':
     Y=model(X)
     Y0=model(X0)
     
-    optimizer.zero_grad()
-    l=loss.dumped_oscillation(X,Y,X0,Y0,0)
+    # optimizer.zero_grad()
+    # l=loss.dumped_oscillation(X,Y,X0,Y0,0)

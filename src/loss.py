@@ -6,16 +6,15 @@ def parabola(X:torch.Tensor,Y:torch.Tensor)->torch.Tensor:
     l=Z.mean()
     return l
 
-
 """
 鉛直投げ上げ問題に関するPINNの損失関数
 最大の高さが, 落下する時間が1となるように無次元化してある
 入力と出力が1次元で動作
 """
 def vertical_throw(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor)->torch.Tensor:  
-    Y_t  = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
-    Y_tt = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
-    Y_t0 = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
+    Y_t   = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
+    Y_tt  = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
+    Y_t0  = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
     
     l_ode = ((Y_tt+8)**2).mean()
     l_ic1 = (Y0**2).mean()
@@ -26,11 +25,10 @@ def vertical_throw(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor
     return l
 
 def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,zeta:float)->torch.Tensor: 
-    Y_t  = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
-    Y_tt = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
-    Y_t0 = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
-    
-    # 単振動を再現できない原因を解明するため、一時的に角速度ωを10に設定
+    Y_t   = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
+    Y_tt  = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
+    Y_t0  = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
+
     L_ode = ((Y_tt + 2*zeta*Y_t + Y)**2).mean()
     L_ic1 = ((Y0 - 1)**2).mean()
     L_ic2 = (Y_t0**2).mean()
@@ -47,7 +45,7 @@ def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,
 Y0,Y1は境界条件
 """
 def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
-    dY     = torch.autograd.grad(Y,X,torch.ones_like(Y),create_graph=True)[0]
+    dY = torch.autograd.grad(Y,X,torch.ones_like(Y),create_graph=True)[0]
     phi_x,phi_y = dY[:,0:1],dY[:,1:2]
     
     phi_xx = torch.autograd.grad(phi_x,X,torch.ones_like(phi_x),create_graph=True)[0][:,0:1]

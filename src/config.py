@@ -5,16 +5,17 @@ import torch
 import torch.nn as nn
 import yaml
 
-in_features: int = 2
-out_features: int = 1
-num_layers: int = 4
-width: int = 50
-epoch:int=10000
-num_sample:int=100     # ランダム・境界サンプリングの点数
-num_plot:int=100       # 解析解プロットの点数
-grid_density:int=100   # 学習用グリッドの単位長さあたりの点数
-plot_density:int=100   # 出力用グリッドの単位長さあたりの点数
-learning_rate:float = 1e-3
+in_features: int = 2          # 入力層の幅
+out_features: int = 1         # 出力層の幅
+num_layers: int = 4           # 隠れ層の数
+width: int = 50               # 隠れ層の幅
+epoch:int=10000               # 学習回数
+num_sample:int=100            # ランダム・境界サンプリングの点数
+num_plot:int=100              # 解析解プロットの点数
+grid_density:int=100          # 学習用グリッドの単位長さあたりの点数
+plot_density:int=100          # 出力用グリッドの単位長さあたりの点数
+learning_rate:float = 1e-3    # 学習率
+
 loss_weights:torch.Tensor =torch.tensor([1.])
 
 Activation: nn.Module = nn.Tanh()
