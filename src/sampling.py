@@ -1,6 +1,6 @@
 import torch
 import itertools
-import source.config as config
+import config as config
 
 in_features=config.in_features
 num_sample=config.num_sample

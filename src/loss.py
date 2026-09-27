@@ -1,5 +1,5 @@
 import torch
-import source.config as config
+import config as config
 
 loss_weights=config.loss_weights
 in_features= config.in_features
@@ -65,8 +65,8 @@ def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tens
     return L
     
 if __name__=='__main__':
-    import source.sampling as sampling
-    import source.fcnn as fcnn
+    import sampling as sampling
+    import fcnn as fcnn
 
     model= fcnn.FCNN()
     X=sampling.sample_grid(100,2)

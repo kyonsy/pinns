@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import source.config as config
+import config as config
 
 in_features: int = config.in_features
 out_features: int = config.out_features
@@ -34,8 +34,8 @@ class FCNN(nn.Module):
         return Y
 
 if __name__=='__main__':
-    import source.fcnn as fcnn
-    import source.sampling as sampling
+    import fcnn as fcnn
+    import sampling as sampling
     
     model: FCNN = FCNN()
     X=sampling.sample_random_default() * 20

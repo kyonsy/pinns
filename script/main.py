@@ -2,10 +2,10 @@ import math
 import torch
 import numpy as np
 
-import source.fcnn as fcnn
-import source.config as config
-import source.sampling as sampling
-import source.train as train
+import fcnn as fcnn
+import config as config
+import sampling as sampling
+import train as train
 
 epoch:int=config.epoch
 num_plot=config.num_plot
@@ -37,7 +37,7 @@ def test2():
     Y_out=model(X_out)
     XY_out=torch.cat([X_out,Y_out],dim=1)
     
-    np.savetxt(f"out/out.dat",XY_out.detach().numpy(),"%.6f")
+    np.savetxt(f"./out/out.dat",XY_out.detach().numpy(),"%.6f")
     print(f"complete") 
         
 if __name__=="__main__":

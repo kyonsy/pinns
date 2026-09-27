@@ -14,7 +14,7 @@ def dumped_oscillation(X:torch.Tensor,zeta:float) -> torch.Tensor:
         return (-r2*torch.exp(r1*X) + r1*torch.exp(r2*X))/(r1 - r2)
 
 if __name__=='__main__':
-    import source.config as config
+    import config as config
     import numpy as np
     
     num_plot=config.num_plot
