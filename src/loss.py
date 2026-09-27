@@ -65,7 +65,7 @@ if __name__=='__main__':
     from . import fcnn
 
     model= fcnn.FCNN()
-    X=sampling.sample_grid(100,2)
+    X=sampling.sample_grid(100,[1.0,1.0])
     # print(f"Sample in grid {X}\n")
     # print(f"Shape: {X.shape}")
     # K=sampling.sample_random(100,2)

@@ -1,5 +1,6 @@
 import torch
 import itertools
+from collections.abc import Sequence
 from . import config as cfg
 
 def sample_random_default()->torch.Tensor:
@@ -8,10 +9,15 @@ def sample_random_default()->torch.Tensor:
 def sample_random(num_sample:int,in_features:int)->torch.Tensor:
     return torch.rand(num_sample,in_features)
 
-def sample_grid(num_sample:int,dim:int)->torch.Tensor:
-    axis = [x/num_sample for x in range(num_sample)] 
-    return torch.tensor(list(itertools.product(axis,repeat=dim)))
-    
+"""
+各次元 [0,scale[i]) の範囲の格子点をとる. 次元数は len(scale)
+点の間隔は 1/density で全次元共通. 各次元の点数は density*scale[i] 個
+例: sample_grid(100,[2.0,1.0]) → x∈[0,2) に200点, y∈[0,1) に100点
+"""
+def sample_grid(density:int,scale:Sequence[float])->torch.Tensor:
+    axes = [[x/density for x in range(round(density*s))] for s in scale]
+    return torch.tensor(list(itertools.product(*axes)))
+
 """
 角が原点に接した単位正方形の外周からサンプルをとる
 """
@@ -24,5 +30,5 @@ def sample_square_boundry(num_sample:int) -> torch.Tensor:
 
 if __name__=="__main__":
     # print(sample_random_default())
-    print(sample_grid(2,2))
+    print(sample_grid(2,[1.0,1.0]))
     print(sample_square_boundry(100))
