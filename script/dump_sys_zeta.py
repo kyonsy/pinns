@@ -1,5 +1,5 @@
-#減衰振動に関するPINNについて、ネットワークの解と解析解の間の誤差と、学習区間との関係を調べる
-#減衰比は0で固定(つまり単振動について学習を行う)
+#減衰振動に関するPINNについて、ネットワークの解と解析解の間の誤差と、減衰比との関係を調べる
+#学習区間は[0,2π]で固定
 
 import sys
 from pathlib import Path
@@ -20,31 +20,22 @@ import src.analysis as analysis
 cfg.load(ROOT / "config/dump_sys.yaml")
 (ROOT / "out").mkdir(exist_ok=True)  # clone直後は out/ が無いので作っておく
 
+zetas=[0.0,0.5,1.0,1.5,2.0]
+trange = 2*math.pi
 
-for i  in range(1):
-    j=i+1
-    trange = j * math.pi/4
-    
+for i,zeta in enumerate(zetas,start=1):
     model =fcnn.FCNN()
-    train.train_dump_sys(model,trange,0.0)
+    train.train_dump_sys(model,trange,zeta)
     
     # PINNの解と解析解を同じ点で計算し, 誤差と並べて保存する
     X_out   = sampling.sample_grid(cfg.plot_density,[trange])
     with torch.no_grad():
         Y_pinn  = model(X_out)
-    Y_exact = analysis.dumped_oscillation(X_out,0.0)
+    Y_exact = analysis.dumped_oscillation(X_out,zeta)
     abs_err = (Y_pinn - Y_exact).abs()
     data    = torch.cat([X_out,Y_pinn,Y_exact,abs_err],dim=1)
     
-    np.savetxt(ROOT / f"out/out{j}.dat",data.numpy(),"%.6e",header="t pinn exact abs_err")
-    print(f"complete {j}")
+    np.savetxt(ROOT / f"out/zeta{zeta}.dat",data.numpy(),"%.6e",header="t pinn exact abs_err")
+    print(f"complete zeta={zeta}  [{i}/{len(zetas)}] {i/len(zetas):.0%}")
     
-
-
-
-
-
-
-
-
 

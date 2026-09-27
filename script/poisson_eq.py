@@ -14,6 +14,7 @@ import src.sampling as sampling
 import src.train as train
 
 cfg.load(ROOT / "config/poisson_eq.yaml")
+(ROOT / "out").mkdir(exist_ok=True)  # clone直後は out/ が無いので作っておく
 
 model=fcnn.FCNN()
 train.train_poisson_eq(model)
