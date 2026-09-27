@@ -1,8 +1,4 @@
 import torch
-import config as config
-
-loss_weights=config.loss_weights
-in_features= config.in_features
 
 """y=x^2に関するPINNsの損失関数"""
 def parabola(X:torch.Tensor,Y:torch.Tensor)->torch.Tensor:
@@ -65,8 +61,8 @@ def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tens
     return L
     
 if __name__=='__main__':
-    import sampling as sampling
-    import fcnn as fcnn
+    from . import sampling
+    from . import fcnn
 
     model= fcnn.FCNN()
     X=sampling.sample_grid(100,2)

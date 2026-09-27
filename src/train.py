@@ -2,20 +2,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-import sampling as sampling
-import loss as loss
-import config as config
-
-epoch:int=config.epoch
-num_plot=config.num_plot
-num_sample=config.num_sample
-learning_rate=config.learning_rate
-in_features=config.in_features
+from . import sampling
+from . import loss
+from . import config as cfg
 
 def train_dump_sys(model:nn.Module) -> None:
-    optimizer=optim.Adam(model.parameters(),lr=learning_rate)
-    for _ in range(epoch):
-        X=sampling.sample_grid(num_sample,in_features)
+    optimizer=optim.Adam(model.parameters(),lr=cfg.learning_rate)
+    for _ in range(cfg.epoch):
+        X=sampling.sample_grid(cfg.num_sample,cfg.in_features)
         X0=torch.zeros_like(X)
         
         X.requires_grad_(True)
@@ -36,10 +30,10 @@ def train_dump_sys(model:nn.Module) -> None:
 Y0,Y1は境界条件
 """ 
 def train_poisson_eq(model:nn.Module)->None:
-    optimizer=optim.Adam(model.parameters(),lr=learning_rate)
-    for i in range(epoch):
-        X  = sampling.sample_grid(num_sample,in_features)
-        X0 = sampling.sample_square_boundry(num_sample)
+    optimizer=optim.Adam(model.parameters(),lr=cfg.learning_rate)
+    for i in range(cfg.epoch):
+        X  = sampling.sample_grid(cfg.num_sample,cfg.in_features)
+        X0 = sampling.sample_square_boundry(cfg.num_sample)
         X1 = torch.tensor([[0.5,0.5]])
         
         X.requires_grad  = True

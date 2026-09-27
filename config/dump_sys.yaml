@@ -1,0 +1,11 @@
+in_features: 1
+out_features: 1
+num_layers: 10
+width: 32
+activation: tanh
+
+epoch: 1000
+num_sample: 100
+num_plot: 1000
+learning_rate: 1.0e-3
+loss_weights: [1.0]

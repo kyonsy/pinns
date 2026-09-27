@@ -1,12 +1,6 @@
 import torch
 import torch.nn as nn
-import config as config
-
-in_features: int = config.in_features
-out_features: int = config.out_features
-num_layers: int = config.num_layers
-width: int = config.width
-Activation = config.Activation
+from . import config as cfg
 
 
 class FCNN(nn.Module):
@@ -17,11 +11,11 @@ class FCNN(nn.Module):
 
     def __init__(self) -> None:
         super().__init__()
-        self.first=nn.Linear(in_features,width)
+        self.first=nn.Linear(cfg.in_features,cfg.width)
         self.hidden = nn.ModuleList(
-            [nn.Linear(width, width) for _ in range(num_layers)]
+            [nn.Linear(cfg.width, cfg.width) for _ in range(cfg.num_layers)]
         )
-        self.final = nn.Linear(width, out_features)
+        self.final = nn.Linear(cfg.width, cfg.out_features)
 
 
     def forward(self, X: torch.Tensor) -> torch.Tensor:
@@ -29,13 +23,13 @@ class FCNN(nn.Module):
         Y=self.first(X)
         for linear in self.hidden:
             Y = linear(Y)
-            Y = Activation(Y)
+            Y = cfg.Activation(Y)
         Y = self.final(Y)
         return Y
 
 if __name__=='__main__':
-    import fcnn as fcnn
-    import sampling as sampling
+    from . import fcnn
+    from . import sampling
     
     model: FCNN = FCNN()
     X=sampling.sample_random_default() * 20
