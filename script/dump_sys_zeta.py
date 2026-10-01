@@ -18,9 +18,8 @@ import src.train as train
 import src.analysis as analysis
 
 cfg.load(ROOT / "config/dump_sys.yaml")
-(ROOT / "out").mkdir(exist_ok=True)  # clone直後は out/ が無いので作っておく
 
-zetas=[0.0,0.5,1.0,1.5,2.0]
+zetas=[(x+1) * 0.1 for x in range(20)]
 trange = 2*math.pi
 
 for i,zeta in enumerate(zetas,start=1):

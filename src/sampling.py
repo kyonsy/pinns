@@ -21,11 +21,11 @@ def sample_grid(density:int,scale:Sequence[float])->torch.Tensor:
 """
 角が原点に接した単位正方形の外周からサンプルをとる
 """
-def sample_square_boundry(num_sample:int) -> torch.Tensor:  
-    bottom = torch.tensor([[x/num_sample,0] for x in range(num_sample)])
-    right  = torch.tensor([[1,x/num_sample] for x in range(num_sample)])
-    top    = torch.tensor([[x/num_sample,1] for x in range(num_sample)])
-    left   = torch.tensor([[0,x/num_sample] for x in range(num_sample)])
+def sample_square_boundry(density:int) -> torch.Tensor:  
+    bottom = torch.tensor([[x/density,0] for x in range(density)])
+    right  = torch.tensor([[1,x/density] for x in range(density)])
+    top    = torch.tensor([[x/density,1] for x in range(density)])
+    left   = torch.tensor([[0,x/density] for x in range(density)])
     return torch.vstack([bottom,right,top,left])
 
 if __name__=="__main__":

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import math as m
 
 from . import sampling
 from . import loss
@@ -30,11 +31,14 @@ def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
 Y0,Y1は境界条件
 """ 
 def train_poisson_eq(model:nn.Module)->None:
+    phi1 = m.ceil(cfg.grid_density/2)/cfg.grid_density
+    phi2 = m.floor(cfg.grid_density/2)/cfg.grid_density
+    
     optimizer=optim.Adam(model.parameters(),lr=cfg.learning_rate)
     for i in range(cfg.epoch):
         X  = sampling.sample_grid(cfg.grid_density,[1.0,1.0])
-        X0 = sampling.sample_square_boundry(cfg.num_sample)
-        X1 = torch.tensor([[0.5,0.5]])
+        X0 = sampling.sample_square_boundry(cfg.grid_density)
+        X1 = torch.tensor([[phi1,phi1],[phi1,phi2],[phi2,phi1],[phi2,phi2]])
         
         X.requires_grad  = True
         X0.requires_grad = True

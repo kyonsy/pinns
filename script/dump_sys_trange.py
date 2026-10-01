@@ -18,12 +18,12 @@ import src.train as train
 import src.analysis as analysis
 
 cfg.load(ROOT / "config/dump_sys.yaml")
-(ROOT / "out").mkdir(exist_ok=True)  # clone直後は out/ が無いので作っておく
 
 
-for i  in range(1):
+scale = 20
+for i  in range(scale):
     j=i+1
-    trange = j * math.pi/4
+    trange = j * math.pi/2
     
     model =fcnn.FCNN()
     train.train_dump_sys(model,trange,0.0)
@@ -37,7 +37,7 @@ for i  in range(1):
     data    = torch.cat([X_out,Y_pinn,Y_exact,abs_err],dim=1)
     
     np.savetxt(ROOT / f"out/out{j}.dat",data.numpy(),"%.6e",header="t pinn exact abs_err")
-    print(f"complete {j}")
+    print(f"complete[{j}/scale] {j/scale:.0%}")
     
 
 
