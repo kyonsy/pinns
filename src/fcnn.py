@@ -27,6 +27,17 @@ class FCNN(nn.Module):
         Y = self.final(Y)
         return Y
 
+"""
+ポアソンの方程式用のFCNN
+単位正方形の境界で φ=0 を厳密に満たすように, 出力に境界で0となる関数を掛ける
+16x(1-x)y(1-y) は中心で1, 境界で0
+"""
+class PoissonFCNN(FCNN):
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        x, y = X[:, 0:1], X[:, 1:2]
+        D = 16 * x * (1 - x) * y * (1 - y)
+        return D * super().forward(X)
+
 if __name__=='__main__':
     from . import fcnn
     from . import sampling

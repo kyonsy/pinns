@@ -15,7 +15,7 @@ import src.train as train
 
 cfg.load(ROOT / "config/poisson_eq.yaml")
 
-model=fcnn.FCNN()
+model=fcnn.PoissonFCNN()
 train.train_poisson_eq(model)
 X_out= sampling.sample_grid(cfg.plot_density,[1.0,1.0])
 Y_out=model(X_out)
