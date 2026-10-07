@@ -18,12 +18,13 @@ import src.train as train
 import src.analysis as analysis
 
 cfg.load(ROOT / "config/dump_sys.yaml")
+print(f"device: {cfg.device}")
 
 zetas=[(x+1) * 0.1 for x in range(20)]
 trange = 2*math.pi
 
 for i,zeta in enumerate(zetas,start=1):
-    model =fcnn.FCNN()
+    model =fcnn.FCNN().to(cfg.device)
     train.train_dump_sys(model,trange,zeta)
     
     # PINNの解と解析解を同じ点で計算し, 誤差と並べて保存する
@@ -34,7 +35,7 @@ for i,zeta in enumerate(zetas,start=1):
     abs_err = (Y_pinn - Y_exact).abs()
     data    = torch.cat([X_out,Y_pinn,Y_exact,abs_err],dim=1)
     
-    np.savetxt(ROOT / f"out/zeta{zeta}.dat",data.numpy(),"%.6e",header="t pinn exact abs_err")
+    np.savetxt(ROOT / f"out/zeta{zeta}.dat",data.cpu().numpy(),"%.6e",header="t pinn exact abs_err")
     print(f"complete zeta={zeta}  [{i}/{len(zetas)}] {i/len(zetas):.0%}")
     
 

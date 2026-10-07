@@ -18,6 +18,7 @@ import src.train as train
 import src.analysis as analysis
 
 cfg.load(ROOT / "config/dump_sys.yaml")
+print(f"device: {cfg.device}")
 
 
 scale = 20
@@ -25,7 +26,7 @@ for i  in range(scale):
     j=i+1
     trange = j * math.pi/2
     
-    model =fcnn.FCNN()
+    model =fcnn.FCNN().to(cfg.device)
     train.train_dump_sys(model,trange,0.0)
     
     # PINNの解と解析解を同じ点で計算し, 誤差と並べて保存する
@@ -36,7 +37,7 @@ for i  in range(scale):
     abs_err = (Y_pinn - Y_exact).abs()
     data    = torch.cat([X_out,Y_pinn,Y_exact,abs_err],dim=1)
     
-    np.savetxt(ROOT / f"out/out{j}.dat",data.numpy(),"%.6e",header="t pinn exact abs_err")
+    np.savetxt(ROOT / f"out/out{j}.dat",data.cpu().numpy(),"%.6e",header="t pinn exact abs_err")
     print(f"complete[{j}/scale] {j/scale:.0%}")
     
 

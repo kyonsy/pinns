@@ -42,9 +42,9 @@ def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,
 """
 ポアソンの方程式に関するPINNの損失関数
 入力が2つ(x,y). 出力が一つ(φ)
-Y1は中心の条件. 外周の境界条件(φ=0)はモデル側(PoissonFCNN)で固定している
+境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
 """
-def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
+def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
     dY = torch.autograd.grad(Y,X,torch.ones_like(Y),create_graph=True)[0]
     phi_x,phi_y = dY[:,0:1],dY[:,1:2]
     
@@ -52,10 +52,7 @@ def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor,Y1:torch.Tensor) -> torch.Ten
     phi_yy = torch.autograd.grad(phi_y,X,torch.ones_like(phi_y),create_graph=True)[0][:,1:2]
     
     L_ode  = ((phi_xx + phi_yy)**2).mean()
-    L_bc   = ((Y1-1)**2).mean()
-    
-    L = L_ode + L_bc
-    return L
+    return L_ode
     
 if __name__=='__main__':
     from . import sampling
@@ -69,15 +66,11 @@ if __name__=='__main__':
     # print(f"Sample in random {K}")
     # print(f"Shape: {K.shape}")
     
-    X1=torch.tensor([[0.5,0.5]])
-    
     X.requires_grad_(True)
-    X1.requires_grad_(True)
     
     Y=model(X)
-    Y1=model(X1)
     
-    l=loss_poisson_sys(X,Y,Y1)
+    l=loss_poisson_sys(X,Y)
     
     
 

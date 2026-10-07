@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import math as m
 
 from . import sampling
 from . import loss
@@ -9,13 +8,14 @@ from . import config as cfg
 
 def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
     optimizer=optim.Adam(model.parameters(),lr=cfg.learning_rate)
+    # 格子点は毎回同じなので, ループの外で1回だけ作る
+    X=sampling.sample_grid(cfg.grid_density,[trange])
+    X0=torch.zeros_like(X)
+    
+    X.requires_grad_(True)
+    X0.requires_grad_(True)
+    
     for _ in range(cfg.epoch):
-        X=sampling.sample_grid(cfg.grid_density,[trange])
-        X0=torch.zeros_like(X)
-        
-        X.requires_grad_(True)
-        X0.requires_grad_(True)
-        
         Y=model(X)
         Y0=model(X0)
         
@@ -28,25 +28,20 @@ def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
 """
 ポアソンの方程式に関するPINNの学習用関数
 入力が2つ(x,y). 出力が一つ(φ)
-Y1は中心の条件. 外周の境界条件はモデル側(PoissonFCNN)で固定している
+境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
 """ 
 def train_poisson_eq(model:nn.Module)->None:
-    phi1 = m.ceil(cfg.grid_density/2)/cfg.grid_density
-    phi2 = m.floor(cfg.grid_density/2)/cfg.grid_density
-    
     optimizer=optim.Adam(model.parameters(),lr=cfg.learning_rate)
+    # 格子点は毎回同じなので, ループの外で1回だけ作る
+    X  = sampling.sample_grid(cfg.grid_density,[1.0,1.0])
+    X.requires_grad  = True
+    
     for i in range(cfg.epoch):
-        X  = sampling.sample_grid(cfg.grid_density,[1.0,1.0])
-        X1 = torch.tensor([[phi1,phi1],[phi1,phi2],[phi2,phi1],[phi2,phi2]])
-        
-        X.requires_grad  = True
-        X1.requires_grad = True
-        
         Y  = model(X)
-        Y1 = model(X1)
         
         optimizer.zero_grad()
-        l=loss.loss_poisson_sys(X,Y,Y1)
+        l=loss.loss_poisson_sys(X,Y)
         l.backward()
         optimizer.step()
-        print(f"epoch:{i}")
+        if i % 1000 == 0 or i == cfg.epoch-1:
+            print(f"epoch:{i} loss:{l.item():.6e}")

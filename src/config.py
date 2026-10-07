@@ -16,6 +16,9 @@ grid_density:int=100          # 学習用グリッドの単位長さあたりの
 plot_density:int=100          # 出力用グリッドの単位長さあたりの点数
 learning_rate:float = 1e-3    # 学習率
 
+# 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU
+device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 loss_weights:torch.Tensor =torch.tensor([1.])
 
 Activation: nn.Module = nn.Tanh()
@@ -35,7 +38,7 @@ yamlに書かれていない項目はデフォルト値のまま
 """
 def load(path: str | Path) -> None:
     global in_features, out_features, num_layers, width, epoch
-    global num_sample, num_plot, grid_density, plot_density, learning_rate, loss_weights, Activation
+    global num_sample, num_plot, grid_density, plot_density, learning_rate, loss_weights, Activation, device
 
     with open(path, encoding="utf-8") as f:
         data: dict[str, Any] = yaml.safe_load(f) or {}
@@ -55,11 +58,14 @@ def load(path: str | Path) -> None:
         loss_weights = torch.tensor(data["loss_weights"], dtype=torch.float32)
     if "activation" in data:
         Activation = ACTIVATIONS[data["activation"].lower()]()
+    # device: auto(デフォルト) / cuda / cpu
+    if data.get("device", "auto") != "auto":
+        device = torch.device(data["device"])
 
     unknown: set[str] = set(data) - {
         "in_features", "out_features", "num_layers", "width", "epoch",
         "num_sample", "num_plot", "grid_density", "plot_density",
-        "learning_rate", "loss_weights", "activation",
+        "learning_rate", "loss_weights", "activation", "device",
     }
     if unknown:
         raise KeyError(f"{path} に未知の設定項目があります: {sorted(unknown)}")

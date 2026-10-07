@@ -15,11 +15,13 @@ import src.train as train
 
 cfg.load(ROOT / "config/poisson_eq.yaml")
 
-model=fcnn.PoissonFCNN()
+print(f"device: {cfg.device}")
+model=fcnn.PoissonFCNN().to(cfg.device)
 train.train_poisson_eq(model)
 X_out= sampling.sample_grid(cfg.plot_density,[1.0,1.0])
-Y_out=model(X_out)
+with torch.no_grad():
+    Y_out=model(X_out)
 XY_out=torch.cat([X_out,Y_out],dim=1)
 
-np.savetxt(ROOT / "out/out.dat",XY_out.detach().numpy(),"%.6f")
+np.savetxt(ROOT / "out/out.dat",XY_out.cpu().numpy(),"%.6f")
 print(f"complete") 
