@@ -3,3 +3,4 @@ __pycache__/
 fit.log
 graph/
 .tmp.driveupload/
+build/
