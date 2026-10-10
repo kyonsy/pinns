@@ -1,5 +1,7 @@
 import torch
 
+from . import config as cfg
+
 """y=x^2に関するPINNsの損失関数"""
 def parabola(X:torch.Tensor,Y:torch.Tensor)->torch.Tensor:
     Z=((Y-X**2)**2)
@@ -53,7 +55,23 @@ def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
     
     L_ode  = ((phi_xx + phi_yy)**2).mean()
     return L_ode
-    
+
+"""
+ポアソンの方程式に関するPINNの損失関数(ソフト制約)
+入力が2つ(x,y). 出力が一つ(φ)
+Y0: 外周での出力 (φ=0 にしたい)
+Y1: 中心の4点での出力 (φ=1 にしたい)
+重みは cfg.loss_weights = [方程式, 外周, 中心] の順
+"""
+def loss_poisson_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
+    w = cfg.loss_weights
+    L_ode = loss_poisson_sys(X,Y)
+    L_bc0 = (Y0**2).mean()
+    L_bc1 = ((Y1 - 1)**2).mean()
+
+    L = float(w[0])*L_ode + float(w[1])*L_bc0 + float(w[2])*L_bc1
+    return L
+
 if __name__=='__main__':
     from . import sampling
     from . import fcnn
