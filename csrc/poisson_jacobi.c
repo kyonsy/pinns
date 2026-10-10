@@ -44,12 +44,12 @@
  *
  * ■ ビルドと実行 (csrc/ で)
  * ------------------------------------------------------------
- *   make                 # ビルド (逐次版)
+ *   make                 # ビルド (逐次版)。実行ファイルは build/ に出力される
  *   make OMP=1 -B        # ビルド (OpenMP 並列版)
- *   make run             # n = 101 で解き、../out/numerical_c.dat に出力
+ *   make run             # n = 101 で解き、out/numerical_c.dat に出力
  *
- *   直接実行する場合:
- *   ./poisson_jacobi [n] [出力ファイル] [tol] [max_iter]
+ *   直接実行する場合 (プロジェクト直下で):
+ *   ./build/poisson_jacobi [n] [出力ファイル] [tol] [max_iter]
  *     n        : 分割数 (既定 101 = config/poisson_eq.yaml の grid_density)
  *     出力     : 既定 out/numerical_c.dat (実行した場所からの相対パス)
  *     tol      : 既定 1e-10
