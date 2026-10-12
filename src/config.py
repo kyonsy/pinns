@@ -6,23 +6,21 @@ import torch.nn as nn
 import yaml
 
 # deafult値
-in_features: int = 2          # 入力層の幅
-out_features: int = 1         # 出力層の幅
-num_layers: int = 4           # 隠れ層の数
-width: int = 50               # 隠れ層の幅
-epoch:int=10000               # 学習回数
-num_sample:int=100            # ランダム・境界サンプリングの点数
-num_plot:int=100              # 解析解プロットの点数
-grid_density:int=100          # 学習用グリッドの単位長さあたりの点数
-plot_density:int=100          # 出力用グリッドの単位長さあたりの点数
-learning_rate:float = 1e-3    # 学習率
+in_features: int           # 入力層の幅
+out_features: int          # 出力層の幅
+num_layers: int            # 隠れ層の数
+width: int                 # 隠れ層の幅
+epoch:int                  # 学習回数
+num_sample:int             # ランダム・境界サンプリングの点数
+num_plot:int               # 解析解プロットの点数
+grid_density:int           # 学習用グリッドの単位長さあたりの点数
+plot_density:int           # 出力用グリッドの単位長さあたりの点数
+learning_rate:float        # 学習率
+loss_weights:torch.Tensor  # 損失関数の各項の重み
+Activation: nn.Module      # 活性化関数
 
 # 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU
 device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-loss_weights:torch.Tensor =torch.tensor([1.])
-
-Activation: nn.Module = nn.Tanh()
 
 # yaml で活性化関数を名前指定するための対応表
 ACTIVATIONS: dict[str, type[nn.Module]] = {

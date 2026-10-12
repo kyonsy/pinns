@@ -18,7 +18,7 @@ cfg.load(ROOT / "config/poisson_hard.yaml")
 print(f"device: {cfg.device}")
 model=fcnn.PoissonFCNN().to(cfg.device)
 train.train_poisson_hard(model)
-X_out= sampling.sample_grid(cfg.plot_density,[1.0,1.0])
+X_out= sampling.sample_grid(cfg.grid_density,[1.0,1.0])
 with torch.no_grad():
     Y_out=model(X_out)
 

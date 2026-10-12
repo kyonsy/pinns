@@ -2,7 +2,8 @@ set xrange [0:1]
 set yrange [0:1]
 set zrange [0:1]
 
-file = "./out/out_hard.dat" 
+type="soft2"
+file = "./out/out_".type.".dat" 
 
 set isosamples 40
 set hidden3d

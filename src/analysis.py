@@ -1,5 +1,8 @@
 import math
 import torch
+from . import config as cfg
+
+
 
 """
 減衰振動 y'' + 2*zeta*y' + y = 0, y(0)=1, y'(0)=0 の解析解
