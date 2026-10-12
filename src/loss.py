@@ -78,9 +78,9 @@ def loss_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> 
 
 if __name__=='__main__':
     from . import sampling
-    from . import model
+    from . import fcnn
 
-    model= model.PoissonFCNN()
+    fcnn= fcnn.PoissonFCNN()
     X=sampling.sample_grid(100,[1.0,1.0])
     # print(f"Sample in grid {X}\n")
     # print(f"Shape: {X.shape}")
@@ -90,7 +90,7 @@ if __name__=='__main__':
     
     X.requires_grad_(True)
     
-    Y=model(X)
+    Y=fcnn(X)
     
     l=loss_hard(X,Y)
     
