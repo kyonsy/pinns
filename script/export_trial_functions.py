@@ -25,4 +25,4 @@ x, y = np.meshgrid(np.arange(n) / n, np.arange(n) / n, indexing="ij")
 X =torch.tensor(np.column_stack([x.ravel(), y.ravel()]))
 
 
-util.save_grid("./out/out_poisson_g.dat",X,hc.G(X))
+util.save_grid("./out/g.dat",X,hc.G(X))

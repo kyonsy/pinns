@@ -32,7 +32,7 @@ def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
 入力が2つ(x,y). 出力が一つ(φ)
 境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
 """ 
-def train_poisson_hard(model:nn.Module)->None:
+def train_hard(model:nn.Module)->None:
     optimizer=optim.Adam(model.parameters(),lr=cfg.LEARNING_RATE)
     # 格子点は毎回同じなので, ループの外で1回だけ作る
     X  = sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
@@ -41,7 +41,7 @@ def train_poisson_hard(model:nn.Module)->None:
     for i in range(cfg.EPOCH):
         Y  = model(X)
         optimizer.zero_grad()
-        l=loss.loss_poisson_hard(X,Y)
+        l=loss.loss_hard(X,Y)
         l.backward()
         optimizer.step()
         if i % 1000 == 0 or i == cfg.EPOCH-1:
@@ -53,7 +53,7 @@ def train_poisson_hard(model:nn.Module)->None:
 入力が2つ(x,y). 出力が一つ(φ)
 Y0,Y1は境界条件
 """ 
-def train_poisson_soft(model:nn.Module)->None:
+def train_soft(model:nn.Module)->None:
     phi1 = m.ceil(cfg.GRID_DENSITY/2)/cfg.GRID_DENSITY
     phi2 = m.floor(cfg.GRID_DENSITY/2)/cfg.GRID_DENSITY
     
@@ -72,7 +72,7 @@ def train_poisson_soft(model:nn.Module)->None:
         Y1 = model(X1)
         
         optimizer.zero_grad()
-        l=loss.loss_poisson_soft(X,Y,Y0,Y1)
+        l=loss.loss_soft(X,Y,Y0,Y1)
         l.backward()
         optimizer.step()
         if i % 1000 == 0 or i == cfg.EPOCH-1:

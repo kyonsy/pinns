@@ -12,8 +12,8 @@ if (ARGC >= 1) {
 }
 
 # ファイル名
-in  = "./out/out_poisson_".type.".dat"
-out = "./graph/graph_poisson_".type.".png"
+in  = "./out/".type.".dat"
+out = "./graph/".type.".png"
 
 set contour base
 set cntrparam levels 10

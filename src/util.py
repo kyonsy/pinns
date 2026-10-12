@@ -34,9 +34,9 @@ def save_grid(
     if len(data) % n != 0:
         raise ValueError(f"点数 {len(data)}がブロック長{n}で割り切れません")
     
-    out_path = Path(path)
-    out_path.parent.mkdir(parents=True,exist_ok=True)
-    with open(out_path,"w") as fp:
+    path = Path(path)
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with open(path,"w") as fp:
         for block in data.reshape(-1,n,data.shape[1]):
             np.savetxt(fp,block,fmt=fmt)
             fp.write("\n")    

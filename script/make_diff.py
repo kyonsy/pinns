@@ -20,7 +20,7 @@ n = cfg.GRID_DENSITY
 x, y = np.meshgrid(np.arange(n) / n, np.arange(n) / n, indexing="ij")
 X =np.column_stack([x.ravel(), y.ravel()])
 
-hard      = np.loadtxt("./out/out_poisson_hard.dat")[:,2:]
-g         = np.loadtxt("./out/out_poisson_hard.dat")[:,2:]
-numerical = np.loadtxt("./out/out_poisson_numerical.dat")[:,2:]
+hard      = np.loadtxt("./out/hard.dat")[:,2:]
+g         = np.loadtxt("./out/hard.dat")[:,2:]
+numerical = np.loadtxt("./out/numerical.dat")[:,2:]
 

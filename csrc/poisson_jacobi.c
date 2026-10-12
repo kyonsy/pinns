@@ -1,8 +1,8 @@
 /*
- * poisson_jacobi.c
+ * jacobi.c
  * ============================================================
  * ポアソンの方程式 φ_xx + φ_yy = 0 を「差分法 + ヤコビ法」で解く C プログラム
- * (src/numerical.py の solve_poisson_jacobi の C 版)
+ * (src/numerical.py の solve_jacobi の C 版)
  * ============================================================
  *
  * ■ 問題設定 (src/numerical.py, PoissonFCNN と同じ)
@@ -49,7 +49,7 @@
  *   make run             # n = 101 で解き、out/numerical_c.dat に出力
  *
  *   直接実行する場合 (プロジェクト直下で):
- *   ./build/poisson_jacobi [n] [出力ファイル] [tol] [max_iter]
+ *   ./build/jacobi [n] [出力ファイル] [tol] [max_iter]
  *     n        : 分割数 (既定 101 = config/poisson.yaml の GRID_DENSITY)
  *     出力     : 既定 out/numerical_c.dat (実行した場所からの相対パス)
  *     tol      : 既定 1e-10
@@ -133,7 +133,7 @@ static void boundary_condition(int n, double *phi, unsigned char *fixed)
  *
  * 戻り値: 実際に繰り返した回数
  */
-static int solve_poisson_jacobi(int n, double *phi, const unsigned char *fixed,
+static int solve_jacobi(int n, double *phi, const unsigned char *fixed,
                                 double tol, int max_iter, double *change)
 {
     const size_t size = (size_t)(n + 1) * (size_t)(n + 1);
@@ -221,7 +221,7 @@ static int solve_poisson_jacobi(int n, double *phi, const unsigned char *fixed,
 /* ============================================================
  * 結果をファイルに書き出す
  * ============================================================
- * 形式は script/poisson_numerical.py の
+ * 形式は script/numerical.py の
  *     np.savetxt("out/numerical.dat", XY, "%.6f")
  * と同じ: 1行に「x y φ」を空白区切り・小数点以下6桁で書く。
  * 並び順は x が外側、y が内側 (src/numerical.py の to_table と同じ)。
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
     /* ---------- ヤコビ法で解く ---------- */
     double change;
     const double t0 = omp_get_wtime();
-    const int num_iter = solve_poisson_jacobi(n, phi, fixed, tol, max_iter, &change);
+    const int num_iter = solve_jacobi(n, phi, fixed, tol, max_iter, &change);
     const double t1 = omp_get_wtime();
 
     /* src/numerical.py と同じ形式で表示 + 時間とスレッド数 */

@@ -13,11 +13,11 @@ import src.config as cfg
 import src.numerical as numerical
 import src.util as util
 
-cfg.load(ROOT / "config/poisson_numerical.yaml")
+cfg.load(ROOT / "config/numerical.yaml")
 
-XY = numerical.solve_poisson_jacobi(cfg.GRID_DENSITY)
-# XY = numerical.solve_poisson_scipy(cfg.GRID_DENSITY)   # scipy で一度に解く場合 (速い)
+XY = numerical.solve_jacobi(cfg.GRID_DENSITY)
+# XY = numerical.solve_scipy(cfg.GRID_DENSITY)   # scipy で一度に解く場合 (速い)
 
-util.save_grid(ROOT / "out/out_poisson_numerical.dat",XY[:,:2],XY[:,2:])
+util.save_grid(ROOT / "out/numerical.dat",XY[:,:2],XY[:,2:])
 
 print("complete")

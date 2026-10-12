@@ -21,14 +21,14 @@ if len(sys.argv) > 1:
     type = sys.argv[1] 
 
 # ソフト制約では境界条件を損失関数で課すので, 出力を変換しない素の FCNN を使う
-cfg.load(ROOT / f"config/poisson_{type}.yaml")
+cfg.load(ROOT / f"config/{type}.yaml")
 
 print(f"device: {cfg.DEVICE}")
 model=model.FCNN().to(cfg.DEVICE)
-train.train_poisson_soft(model)
+train.train_soft(model)
 X_out= sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
 with torch.no_grad():
     Y_out=model(X_out)
 
-util.save_grid(ROOT / f"out/out_poisson_{type}.dat",X_out,Y_out)
+util.save_grid(ROOT / f"out/{type}.dat",X_out,Y_out)
 print(f"complete")

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------
-# poisson_jacobi のビルド用 Makefile (csrc/ で make する)
+# jacobi のビルド用 Makefile (csrc/ で make する)
 #
 #   make          : ビルド (逐次版)。実行ファイルは ../build/ に出力
 #   make OMP=1 -B : OpenMP を有効にしてビルド (並列版)
@@ -35,11 +35,11 @@ endif
 
 # 実行ファイルはプロジェクト直下の build/ に出力する (build/ は .gitignore 済み)
 BUILD_DIR = ../build
-TARGET    = $(BUILD_DIR)/poisson_jacobi$(EXE)
+TARGET    = $(BUILD_DIR)/jacobi$(EXE)
 
 # | の右側は「順序のみの依存」: build/ が無ければ先に作るが、
 # フォルダの更新日時が変わっても再コンパイルはしない
-$(TARGET): poisson_jacobi.c | $(BUILD_DIR)
+$(TARGET): jacobi.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(LDLIBS)
 
 $(BUILD_DIR):

@@ -11,8 +11,8 @@ phi[i,j] に点 (x,y) = (i/n, j/n) での φ の値を入れる
 5点差分で離散化すると, 値が決まっていない各点で
     φ[i,j] = (φ[i+1,j] + φ[i-1,j] + φ[i,j+1] + φ[i,j-1]) / 4
 つまり「各点の値は上下左右4点の平均」という連立一次方程式になる. これを次の2通りで解く
-    solve_poisson_jacobi : ヤコビ法. 全点を4点の平均で置き換える操作をひたすら繰り返す
-    solve_poisson_scipy  : 連立一次方程式として scipy の疎行列ソルバーで一度に解く (速い)
+    solve_jacobi : ヤコビ法. 全点を4点の平均で置き換える操作をひたすら繰り返す
+    solve_scipy  : 連立一次方程式として scipy の疎行列ソルバーで一度に解く (速い)
 どちらも戻り値は [x, y, φ] を並べた (n+1)^2 x 3 の配列. 並び順は sampling.sample_grid と同じ (x が外側, y が内側)
 """
 import math
@@ -67,7 +67,7 @@ def to_table(phi:NDArray[np.float64]) -> NDArray[np.float64]:
     tol : 1回の更新での変化の最大値がこれを下回ったら終了
           ヤコビ法は収束が遅く, 変化が小さくても正しい解からまだ離れていることがあるので小さめにとる
 """
-def solve_poisson_jacobi(n:int, tol:float=1e-10, max_iter:int=100000) -> NDArray[np.float64]:
+def solve_jacobi(n:int, tol:float=1e-10, max_iter:int=100000) -> NDArray[np.float64]:
     phi:   NDArray[np.float64]
     fixed: NDArray[np.bool_]
     phi, fixed = boundary_condition(n)
@@ -101,7 +101,7 @@ def solve_poisson_jacobi(n:int, tol:float=1e-10, max_iter:int=100000) -> NDArray
 連立一次方程式として一度に解く
 「各点の値 = 4点の平均」を (4点の和) - 4φ[i,j] = 0 の形に並べて A φ = b とし, scipy の spsolve で解く
 """
-def solve_poisson_scipy(n:int) -> NDArray[np.float64]:
+def solve_scipy(n:int) -> NDArray[np.float64]:
     phi:   NDArray[np.float64]
     fixed: NDArray[np.bool_]
     phi, fixed = boundary_condition(n)

@@ -46,7 +46,7 @@ def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,
 入力が2つ(x,y). 出力が一つ(φ)
 境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
 """
-def loss_poisson_hard(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
+def loss_hard(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
     dY = torch.autograd.grad(Y,X,torch.ones_like(Y),create_graph=True)[0]
     phi_x,phi_y = dY[:,0:1],dY[:,1:2]
     
@@ -63,9 +63,9 @@ Y0: 外周での出力 (φ=0 にしたい)
 Y1: 中心の4点での出力 (φ=1 にしたい)
 重みは cfg.LOSS_WEIGHTS = [方程式, 外周, 中心] の順
 """
-def loss_poisson_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
+def loss_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
     w = cfg.LOSS_WEIGHTS
-    L_ode = loss_poisson_hard(X,Y)
+    L_ode = loss_hard(X,Y)
     L_bc0 = (Y0**2).mean()
     L_bc1 = ((Y1 - 1)**2).mean()
 
@@ -92,7 +92,7 @@ if __name__=='__main__':
     
     Y=model(X)
     
-    l=loss_poisson_hard(X,Y)
+    l=loss_hard(X,Y)
     
     
 

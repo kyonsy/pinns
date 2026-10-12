@@ -3,7 +3,7 @@ set yrange [0:1]
 set zrange [0:1]
 
 type="hard"
-file = "./out/out_poisson_".type.".dat" 
+file = "./out/".type.".dat" 
 
 set isosamples 40
 set hidden3d
