@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import math as m
 from . import config as cfg
+from . import hard_constraint as hc
 
 
 class FCNN(nn.Module):
@@ -39,33 +40,9 @@ class FCNN(nn.Module):
     N : ネットワーク本体の出力
 """
 class PoissonFCNN(FCNN):
-    
-    P:torch.Tensor
-    
-    def __init__(self) -> None:
-        super().__init__()
-        n = cfg.GRID_DENSITY
-        a = m.ceil(n/2)/n
-        b = m.floor(n/2)/n
-        self.register_buffer("P", torch.tensor([[a,a],[a,b],[b,a],[b,b]]))
-        self.d_at_p = self.boundary_factor(self.P[:1]).item()
-        self.s2 = (1/n)**2
-
-    @staticmethod
-    def boundary_factor(X: torch.Tensor) -> torch.Tensor:
-        """外周で 0 になる関数 D"""
-        x, y = X[:, 0:1], X[:, 1:2]
-        return 16 * x * (1 - x) * y * (1 - y)
-    
-    def point_factor(self,X: torch.Tensor) -> torch.Tensor:
-        """p_k で 0、離れると =1 になる関数 C"""
-        r2 = ((X[:, None, :] - self.P[None, :, :])**2).sum(dim=2) # (N,4)
-        return (1 - torch.exp(-r2 / self.s2)).prod(dim=1, keepdim=True)
-
     def forward(self, X: torch.Tensor) -> torch.Tensor:
-        D = self.boundary_factor(X)
-        G = D / self.d_at_p
-        return G + D * self.point_factor(X) * super().forward(X)
+        N = super().forward(X)
+        return hc.G(X) + hc.D(X) * hc.C(X) * N
 
 
 
