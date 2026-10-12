@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 import torch
 
-import src.fcnn as fcnn
+import src.model as model
 import src.config as cfg
 import src.sampling as sampling
 import src.train as train
@@ -20,7 +20,7 @@ type = "test"
 cfg.load(ROOT / f"config/poisson_{type}.yaml")
 
 print(f"device: {cfg.DEVICE}")
-model=fcnn.FCNN().to(cfg.DEVICE)
+model=model.FCNN().to(cfg.DEVICE)
 train.train_poisson_soft(model)
 X_out= sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
 with torch.no_grad():

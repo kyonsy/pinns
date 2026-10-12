@@ -37,12 +37,11 @@ def train_poisson_hard(model:nn.Module)->None:
     # 格子点は毎回同じなので, ループの外で1回だけ作る
     X  = sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
     X.requires_grad  = True
-    
+
     for i in range(cfg.EPOCH):
         Y  = model(X)
-        
         optimizer.zero_grad()
-        l=loss.loss_poisson_sys(X,Y)
+        l=loss.loss_poisson_hard(X,Y)
         l.backward()
         optimizer.step()
         if i % 1000 == 0 or i == cfg.EPOCH-1:

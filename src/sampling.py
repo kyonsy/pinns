@@ -28,6 +28,11 @@ def sample_square_boundry(density:int) -> torch.Tensor:
     left   = torch.tensor([[0,x/density] for x in range(density)])
     return torch.vstack([bottom,right,top,left]).to(cfg.DEVICE)
 
+
+
+
+
+
 if __name__=="__main__":
     # print(sample_random_default())
     print(sample_grid(2,[1.0,1.0]))

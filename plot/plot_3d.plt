@@ -2,7 +2,7 @@ set xrange [0:1]
 set yrange [0:1]
 set zrange [0:1]
 
-type="soft2"
+type="hard"
 file = "./out/out_poisson_".type.".dat" 
 
 set isosamples 40

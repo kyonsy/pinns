@@ -46,7 +46,7 @@ def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,
 入力が2つ(x,y). 出力が一つ(φ)
 境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
 """
-def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
+def loss_poisson_hard(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
     dY = torch.autograd.grad(Y,X,torch.ones_like(Y),create_graph=True)[0]
     phi_x,phi_y = dY[:,0:1],dY[:,1:2]
     
@@ -65,18 +65,22 @@ Y1: 中心の4点での出力 (φ=1 にしたい)
 """
 def loss_poisson_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
     w = cfg.LOSS_WEIGHTS
-    L_ode = loss_poisson_sys(X,Y)
+    L_ode = loss_poisson_hard(X,Y)
     L_bc0 = (Y0**2).mean()
     L_bc1 = ((Y1 - 1)**2).mean()
 
     L = float(w[0])*L_ode + float(w[1])*L_bc0 + float(w[2])*L_bc1
     return L
 
+
+
+
+
 if __name__=='__main__':
     from . import sampling
-    from . import fcnn
+    from . import model
 
-    model= fcnn.PoissonFCNN()
+    model= model.PoissonFCNN()
     X=sampling.sample_grid(100,[1.0,1.0])
     # print(f"Sample in grid {X}\n")
     # print(f"Shape: {X.shape}")
@@ -88,7 +92,7 @@ if __name__=='__main__':
     
     Y=model(X)
     
-    l=loss_poisson_sys(X,Y)
+    l=loss_poisson_hard(X,Y)
     
     
 

@@ -4,7 +4,7 @@ set xlabel "x"
 set ylabel "y"
 set cblabel "f"
 
-type="g"
+type="hard"
 #ファイル名
 in  = "./out/out_poisson_".type.".dat"
 out = "./graph/graph_poisson_".type.".png"
