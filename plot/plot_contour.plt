@@ -4,8 +4,14 @@ set xlabel "x"
 set ylabel "y"
 set cblabel "f"
 
-type="hard"
-#ファイル名
+type="error"
+
+# コマンドライン引数がある場合は、そちらを type に代入
+if (ARGC >= 1) {
+      type = ARG1
+}
+
+# ファイル名
 in  = "./out/out_poisson_".type.".dat"
 out = "./graph/graph_poisson_".type.".png"
 
@@ -13,7 +19,7 @@ set contour base
 set cntrparam levels 10
 unset key
 
-set cbrange [0:1]
+# set cbrange [0:1]
 set terminal pngcairo size 800,600
 set output out
 

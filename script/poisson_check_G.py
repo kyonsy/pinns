@@ -13,6 +13,10 @@ sys.path.insert(0, str(ROOT))
 import src.config as cfg
 import src.util as util
 
+cfg.load(ROOT / "config/templete.yaml")
+
+print(f"device: {cfg.DEVICE}")
+
 n = cfg.GRID_DENSITY
 
 def G(x:NDArray[np.float64],y:NDArray[np.float64]):
@@ -23,12 +27,8 @@ def G(x:NDArray[np.float64],y:NDArray[np.float64]):
     return D/Dc
 
 
-x, y = np.meshgrid(np.arange(n+1) / n, np.arange(n+1) / n, indexing="ij")
+x, y = np.meshgrid(np.arange(n) / n, np.arange(n) / n, indexing="ij")
 f = G(x,y)
 
 G_out= np.column_stack([x.ravel(), y.ravel(), f.ravel()])
-util.save_grid("./out/out_g.dat",G_out[:,:2],G_out[:,2:])
-
-hard = np.loadtxt("./out/out_hard.dat")
-error = ((G_out-hard)[:,2:]**2).mean()
-print(error)
+util.save_grid("./out/out_poisson_g.dat",G_out[:,:2],G_out[:,2:])

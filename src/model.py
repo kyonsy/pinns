@@ -70,8 +70,6 @@ class PoissonFCNN(FCNN):
 
 
 
-
-
 if __name__=='__main__':
     from . import sampling
     

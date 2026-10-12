@@ -16,6 +16,10 @@ import src.util as util
 # 入力するデータを選択
 type = "test"
 
+# コマンドライン引数がある場合は、そちらを type に代入
+if len(sys.argv) > 1:
+    type = sys.argv[1] 
+
 # ソフト制約では境界条件を損失関数で課すので, 出力を変換しない素の FCNN を使う
 cfg.load(ROOT / f"config/poisson_{type}.yaml")
 

@@ -69,7 +69,7 @@ def loss_poisson_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Ten
     L_bc0 = (Y0**2).mean()
     L_bc1 = ((Y1 - 1)**2).mean()
 
-    L = float(w[0])*L_ode + float(w[1])*L_bc0 + float(w[2])*L_bc1
+    L = w[0] * L_ode + w[1] * L_bc0 + w[2] * L_bc1
     return L
 
 
