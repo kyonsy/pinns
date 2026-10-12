@@ -31,9 +31,9 @@ def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,
     Y_tt  = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
     Y_t0  = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
 
-    w0L_ode = cfg.loss_weights[0] * ((Y_tt + 2*zeta*Y_t + Y)**2).mean()
-    w1L_ic1 = cfg.loss_weights[1] * ((Y0 - 1)**2).mean()
-    w2L_ic2 = cfg.loss_weights[2] * (Y_t0**2).mean()
+    w0L_ode = cfg.LOSS_WEIGHTS[0] * ((Y_tt + 2*zeta*Y_t + Y)**2).mean()
+    w1L_ic1 = cfg.LOSS_WEIGHTS[1] * ((Y0 - 1)**2).mean()
+    w2L_ic2 = cfg.LOSS_WEIGHTS[2] * (Y_t0**2).mean()
     
     # print(zeta)
     # print(type(zeta))
@@ -61,10 +61,10 @@ def loss_poisson_sys(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
 入力が2つ(x,y). 出力が一つ(φ)
 Y0: 外周での出力 (φ=0 にしたい)
 Y1: 中心の4点での出力 (φ=1 にしたい)
-重みは cfg.loss_weights = [方程式, 外周, 中心] の順
+重みは cfg.LOSS_WEIGHTS = [方程式, 外周, 中心] の順
 """
 def loss_poisson_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
-    w = cfg.loss_weights
+    w = cfg.LOSS_WEIGHTS
     L_ode = loss_poisson_sys(X,Y)
     L_bc0 = (Y0**2).mean()
     L_bc1 = ((Y1 - 1)**2).mean()

@@ -6,8 +6,8 @@ set cblabel "f"
 
 type="g"
 #ファイル名
-in  = "./out/out_".type.".dat"
-out = "./graph/graph_".type.".png"
+in  = "./out/out_poisson_".type.".dat"
+out = "./graph/graph_poisson_".type.".png"
 
 set contour base
 set cntrparam levels 10

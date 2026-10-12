@@ -1,34 +1,59 @@
+from __future__ import annotations
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+from functools import partial
 
 import torch
 import torch.nn as nn
 import yaml
 
-# deafult値
-in_features: int           # 入力層の幅
-out_features: int          # 出力層の幅
-num_layers: int            # 隠れ層の数
-width: int                 # 隠れ層の幅
-epoch:int                  # 学習回数
-num_sample:int             # ランダム・境界サンプリングの点数
-num_plot:int               # 解析解プロットの点数
-grid_density:int           # 学習用グリッドの単位長さあたりの点数
-plot_density:int           # 出力用グリッドの単位長さあたりの点数
-learning_rate:float        # 学習率
-loss_weights:torch.Tensor  # 損失関数の各項の重み
-Activation: nn.Module      # 活性化関数
+IN_FEATURES   : int          # 入力層の幅
+OUT_FEATURES  : int          # 出力層の幅
+NUM_LAYERS    : int          # 隠れ層の数
+WIDTH         : int          # 隠れ層の幅
+EPOCH         : int          # 学習回数
+NUM_SAMPLE    : int          # ランダム・境界サンプリングの点数
+NUM_PLOT      : int          # 解析解プロットの点数
+GRID_DENSITY  : int          # 学習用グリッドの単位長さあたりの点数
+PLOT_DENSITY  : int          # 出力用グリッドの単位長さあたりの点数
+LEARNING_RATE : float        # 学習率
+LOSS_WEIGHTS  : torch.Tensor # 損失関数の各項の重み
+
+# 活性化関数
+ACTIVATION    : type[nn.Module]      
 
 # 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU
-device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE        : torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # yaml で活性化関数を名前指定するための対応表
-ACTIVATIONS: dict[str, type[nn.Module]] = {
-    "tanh": nn.Tanh,
-    "relu": nn.ReLU,
-    "sigmoid": nn.Sigmoid,
-    "gelu": nn.GELU,
-    "silu": nn.SiLU,
+_ACTIVATIONS: dict[str, type[nn.Module]] = {
+    "tanh"    : nn.Tanh,
+    "relu"    : nn.ReLU,
+    "sigmoid" : nn.Sigmoid,
+    "gelu"    : nn.GELU,
+    "silu"    : nn.SiLU,
+}
+
+def _activation(name:str)->type[nn.Module]:
+    if name not in _ACTIVATIONS:
+        raise ValueError(f"未対応の活性化関数:{name} (候補: {list(_ACTIVATIONS)})")
+    return _ACTIVATIONS[name]
+
+# 変数名 -> 変数変換
+_CONVERT:dict[str,Callable[[Any],Any]] = {
+    "IN_FEATURES"   : int,           
+    "OUT_FEATURES"  : int,          
+    "NUM_LAYERS"    : int,            
+    "WIDTH"         : int,                 
+    "EPOCH"         : int,                  
+    "NUM_SAMPLE"    : int,             
+    "NUM_PLOT"      : int,               
+    "GRID_DENSITY"  : int,           
+    "PLOT_DENSITY"  : int,           
+    "LEARNING_RATE" : float,   
+    "LOSS_WEIGHTS"  : partial(torch.tensor,dtype=torch.float64),  
+    "ACTIVATION"    : _activation      
 }
 
 """
@@ -36,35 +61,17 @@ yamlファイルの値でこのモジュールの設定値を上書きする
 yamlに書かれていない項目はデフォルト値のまま
 """
 def load(path: str | Path) -> None:
-    global in_features, out_features, num_layers, width, epoch
-    global num_sample, num_plot, grid_density, plot_density, learning_rate, loss_weights, Activation, device
-
+   
     with open(path, encoding="utf-8") as f:
         data: dict[str, Any] = yaml.safe_load(f) or {}
+    for key, value in data.items():
+        if key not in _CONVERT:
+            raise KeyError(f"yamlに未知の変数があります: {key}")
+        if value is None:
+            raise ValueError(f"yamlで {key} の値がからです")
+        globals()[key] = _CONVERT[key](value)
 
-    in_features   = int(data.get("in_features", in_features))
-    out_features  = int(data.get("out_features", out_features))
-    num_layers    = int(data.get("num_layers", num_layers))
-    width         = int(data.get("width", width))
-    epoch         = int(data.get("epoch", epoch))
-    num_sample    = int(data.get("num_sample", num_sample))
-    num_plot      = int(data.get("num_plot", num_plot))
-    grid_density  = int(data.get("grid_density", grid_density))
-    plot_density  = int(data.get("plot_density", plot_density))
-    learning_rate = float(data.get("learning_rate", learning_rate))
-
-    if "loss_weights" in data:
-        loss_weights = torch.tensor(data["loss_weights"], dtype=torch.float32)
-    if "activation" in data:
-        Activation = ACTIVATIONS[data["activation"].lower()]()
-    # device: auto(デフォルト) / cuda / cpu
-    if data.get("device", "auto") != "auto":
-        device = torch.device(data["device"])
-
-    unknown: set[str] = set(data) - {
-        "in_features", "out_features", "num_layers", "width", "epoch",
-        "num_sample", "num_plot", "grid_density", "plot_density",
-        "learning_rate", "loss_weights", "activation", "device",
-    }
-    if unknown:
-        raise KeyError(f"{path} に未知の設定項目があります: {sorted(unknown)}")
+def __getattr__(name:str):
+    if name in _CONVERT:
+        raise AttributeError(f"config.{name}はyamlで設定されていません")
+    raise AttributeError(f"module 'config' has no attribute '{name}'")

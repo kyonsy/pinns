@@ -1,5 +1,5 @@
 # ポアソンの方程式を差分法で解き, PINN と比べるための数値解を保存する
-# 境界条件は PINN (script/poisson.py) と同じ. 格子の細かさは config/poisson.yaml の grid_density
+# 境界条件は PINN (script/poisson.py) と同じ. 格子の細かさは config/poisson.yaml の GRID_DENSITY
 # 出力: out/numerical.dat (1列目 x, 2列目 y, 3列目 φ)
 
 import sys
@@ -15,9 +15,9 @@ import src.util as util
 
 cfg.load(ROOT / "config/poisson_numerical.yaml")
 
-XY = numerical.solve_poisson_jacobi(cfg.grid_density)
-# XY = numerical.solve_poisson_scipy(cfg.grid_density)   # scipy で一度に解く場合 (速い)
+XY = numerical.solve_poisson_jacobi(cfg.GRID_DENSITY)
+# XY = numerical.solve_poisson_scipy(cfg.GRID_DENSITY)   # scipy で一度に解く場合 (速い)
 
-util.save_grid(ROOT / "out/out_numerical.dat",XY[:,:2],XY[:,2:])
+util.save_grid(ROOT / "out/out_poisson_numerical.dat",XY[:,:2],XY[:,2:])
 
 print("complete")

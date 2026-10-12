@@ -1,10 +1,10 @@
-in_features: 2
-out_features: 1
-num_layers: 16
-width: 16
-activation: tanh
+IN_FEATURES: 2
+OUT_FEATURES: 1
+NUM_LAYERS: 16
+WIDTH: 16
+ACTIVATION: tanh
 
-epoch: 10000
-grid_density: 101
-learning_rate: 1.0e-3
-loss_weights: [1.0, 1.0e+6, 1.0e+6]   # [方程式, 外周(φ=0), 中心4点(φ=1)]
+EPOCH: 10000
+GRID_DENSITY: 101
+LEARNING_RATE: 1.0e-3
+LOSS_WEIGHTS: [1.0, 1.0e+6, 1.0e+6]   # [方程式, 外周(φ=0), 中心4点(φ=1)]

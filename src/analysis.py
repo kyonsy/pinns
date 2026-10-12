@@ -24,12 +24,12 @@ if __name__=='__main__':
     from . import config as cfg
     import numpy as np
 
-    num_plot=cfg.num_plot
+    NUM_PLOT=cfg.NUM_PLOT
 
     Z =[0.0,0.5,1.0,1.5,2.0,2.5]
 
     for zeta in Z:
-        X=torch.tensor([[x/num_plot] for x in range(num_plot)])*20
+        X=torch.tensor([[x/NUM_PLOT] for x in range(NUM_PLOT)])*20
         Y=dumped_oscillation(X,zeta)
         XY=torch.cat([X,Y],dim=1)
         np.savetxt(f"out/out{zeta}.txt",XY.detach().numpy(),"%.6f")

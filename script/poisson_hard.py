@@ -15,12 +15,12 @@ import src.util as util
 
 cfg.load(ROOT / "config/poisson_hard.yaml")
 
-print(f"device: {cfg.device}")
-model=fcnn.PoissonFCNN().to(cfg.device)
+print(f"device: {cfg.DEVICE}")
+model=fcnn.PoissonFCNN().to(cfg.DEVICE)
 train.train_poisson_hard(model)
-X_out= sampling.sample_grid(cfg.grid_density,[1.0,1.0])
+X_out= sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
 with torch.no_grad():
     Y_out=model(X_out)
 
-util.save_grid(ROOT / f"out/out_hard.dat",X_out,Y_out)
+util.save_grid(ROOT / f"out/out_poisson_hard.dat",X_out,Y_out)
 print(f"complete") 

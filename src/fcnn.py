@@ -8,24 +8,24 @@ class FCNN(nn.Module):
     first: nn.Linear
     hidden: nn.ModuleList
     final: nn.Linear
-    activations: nn.ModuleDict
-
+    
     def __init__(self) -> None:
         super().__init__()
-        self.first=nn.Linear(cfg.in_features,cfg.width)
+        self.first=nn.Linear(cfg.IN_FEATURES,cfg.WIDTH)
         self.hidden = nn.ModuleList(
-            [nn.Linear(cfg.width, cfg.width) for _ in range(cfg.num_layers)]
+            [nn.Linear(cfg.WIDTH, cfg.WIDTH) for _ in range(cfg.NUM_LAYERS)]
         )
-        self.final = nn.Linear(cfg.width, cfg.out_features)
+        self.final = nn.Linear(cfg.WIDTH, cfg.OUT_FEATURES)
+        self.act = cfg.ACTIVATION()
 
 
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         linear: nn.Module
-        Y=self.first(X)
+        h=self.first(X)
         for linear in self.hidden:
-            Y = linear(Y)
-            Y = cfg.Activation(Y)
-        Y = self.final(Y)
+            h = linear(h)
+            h = self.act(h)
+        Y = self.final(h)
         return Y
 
 """
@@ -40,11 +40,11 @@ class FCNN(nn.Module):
 class PoissonFCNN(FCNN):
     def __init__(self) -> None:
         super().__init__()
-        a = m.ceil(cfg.grid_density/2)/cfg.grid_density
-        b = m.floor(cfg.grid_density/2)/cfg.grid_density
+        a = m.ceil(cfg.GRID_DENSITY/2)/cfg.GRID_DENSITY
+        b = m.floor(cfg.GRID_DENSITY/2)/cfg.GRID_DENSITY
         self.register_buffer("P", torch.tensor([[a,a],[a,b],[b,a],[b,b]]))
         self.Dc = 16 * a * (1 - a) * b * (1 - b)
-        self.s  = 1/cfg.grid_density
+        self.s  = 1/cfg.GRID_DENSITY
 
     @staticmethod
     def dist_boundary(X: torch.Tensor) -> torch.Tensor:

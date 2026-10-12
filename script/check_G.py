@@ -13,11 +13,11 @@ sys.path.insert(0, str(ROOT))
 import src.config as cfg
 import src.util as util
 
-n = cfg.grid_density
+n = cfg.GRID_DENSITY
 
 def G(x:NDArray[np.float64],y:NDArray[np.float64]):
-    a = m.ceil(cfg.grid_density/2)/cfg.grid_density
-    b = m.floor(cfg.grid_density/2)/cfg.grid_density
+    a = m.ceil(cfg.GRID_DENSITY/2)/cfg.GRID_DENSITY
+    b = m.floor(cfg.GRID_DENSITY/2)/cfg.GRID_DENSITY
     Dc=16 * a * (1 - a) * b * (1 - b)
     D = 16 * x * (1 - x) * y * (1 - y)
     return D/Dc

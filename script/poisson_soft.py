@@ -14,17 +14,17 @@ import src.train as train
 import src.util as util
 
 # 入力するデータを選択
-type = "soft4"
+type = "test"
 
 # ソフト制約では境界条件を損失関数で課すので, 出力を変換しない素の FCNN を使う
 cfg.load(ROOT / f"config/poisson_{type}.yaml")
 
-print(f"device: {cfg.device}")
-model=fcnn.FCNN().to(cfg.device)
+print(f"device: {cfg.DEVICE}")
+model=fcnn.FCNN().to(cfg.DEVICE)
 train.train_poisson_soft(model)
-X_out= sampling.sample_grid(cfg.grid_density,[1.0,1.0])
+X_out= sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
 with torch.no_grad():
     Y_out=model(X_out)
 
-util.save_grid(ROOT / f"out/out_{type}.dat",X_out,Y_out)
+util.save_grid(ROOT / f"out/out_poisson_{type}.dat",X_out,Y_out)
 print(f"complete")
