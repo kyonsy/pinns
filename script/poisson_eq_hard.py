@@ -13,7 +13,7 @@ import src.config as cfg
 import src.sampling as sampling
 import src.train as train
 
-cfg.load(ROOT / "config/poisson_eq.yaml")
+cfg.load(ROOT / "config/poisson_eq_hard.yaml")
 
 print(f"device: {cfg.device}")
 model=fcnn.PoissonFCNN().to(cfg.device)

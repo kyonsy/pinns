@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import yaml
 
+# deafult値
 in_features: int = 2          # 入力層の幅
 out_features: int = 1         # 出力層の幅
 num_layers: int = 4           # 隠れ層の数

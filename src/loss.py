@@ -31,14 +31,14 @@ def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,
     Y_tt  = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
     Y_t0  = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
 
-    L_ode = ((Y_tt + 2*zeta*Y_t + Y)**2).mean()
-    L_ic1 = ((Y0 - 1)**2).mean()
-    L_ic2 = (Y_t0**2).mean()
+    w0L_ode = cfg.loss_weights[0] * ((Y_tt + 2*zeta*Y_t + Y)**2).mean()
+    w1L_ic1 = cfg.loss_weights[1] * ((Y0 - 1)**2).mean()
+    w2L_ic2 = cfg.loss_weights[2] * (Y_t0**2).mean()
     
     # print(zeta)
     # print(type(zeta))
     
-    L= L_ode+L_ic1+L_ic2
+    L=  w0L_ode+w1L_ic1+w2L_ic2
     return L
 
 """
