@@ -1,8 +1,6 @@
 import sys
 import numpy as np
 import torch
-import math as m
-from numpy.typing import NDArray
 from pathlib import Path
 
 
@@ -26,3 +24,4 @@ X =torch.tensor(np.column_stack([x.ravel(), y.ravel()]))
 
 
 util.save_grid("./out/g.dat",X,hc.G(X))
+util.save_grid("./out/gl.dat",X,hc.G(X)*hc.L(X))

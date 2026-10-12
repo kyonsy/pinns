@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import math as m
 from . import config as cfg
 from . import hard_constraint as hc
 
@@ -39,10 +38,15 @@ class FCNN(nn.Module):
     C = Π_k (1-exp(-|X-p_k|²/s²)) : 中心の4点 p_k で0, 離れると1
     N : ネットワーク本体の出力
 """
-class PoissonFCNN(FCNN):
+class PoissonFCNN1(FCNN):
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         N = super().forward(X)
         return hc.G(X) + hc.D(X) * hc.C(X) * N
+
+class PoissonFCNN2(FCNN):
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        N = super().forward(X)
+        return hc.G(X) * hc.L(X) + hc.D(X) * hc.C(X) * N
 
 
 
