@@ -32,7 +32,7 @@ def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
 入力が2つ(x,y). 出力が一つ(φ)
 境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
 """ 
-def train_poisson_eq_hard(model:nn.Module)->None:
+def train_poisson_hard(model:nn.Module)->None:
     optimizer=optim.Adam(model.parameters(),lr=cfg.learning_rate)
     # 格子点は毎回同じなので, ループの外で1回だけ作る
     X  = sampling.sample_grid(cfg.grid_density,[1.0,1.0])
@@ -54,7 +54,7 @@ def train_poisson_eq_hard(model:nn.Module)->None:
 入力が2つ(x,y). 出力が一つ(φ)
 Y0,Y1は境界条件
 """ 
-def train_poisson_eq_soft(model:nn.Module)->None:
+def train_poisson_soft(model:nn.Module)->None:
     phi1 = m.ceil(cfg.grid_density/2)/cfg.grid_density
     phi2 = m.floor(cfg.grid_density/2)/cfg.grid_density
     

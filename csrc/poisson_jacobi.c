@@ -50,7 +50,7 @@
  *
  *   直接実行する場合 (プロジェクト直下で):
  *   ./build/poisson_jacobi [n] [出力ファイル] [tol] [max_iter]
- *     n        : 分割数 (既定 101 = config/poisson_eq.yaml の grid_density)
+ *     n        : 分割数 (既定 101 = config/poisson.yaml の grid_density)
  *     出力     : 既定 out/numerical_c.dat (実行した場所からの相対パス)
  *     tol      : 既定 1e-10
  *     max_iter : 既定 100000

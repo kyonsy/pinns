@@ -11,7 +11,7 @@ script_dir = ""
 do for [k=strlen(ARG0):1:-1] {
     if (script_dir eq "" && (ARG0[k:k] eq "/" || ARG0[k:k] eq "\\")) { script_dir = ARG0[1:k] }
 }
-file = script_dir."../out/numerical.dat"
+file = "./out/out_numerical.dat"
 
 # ---------- 格子の形に並べ直す ----------
 # 曲面 (pm3d) で描くには, x が変わるところに空行が必要だが,

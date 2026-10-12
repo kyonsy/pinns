@@ -1,0 +1,11 @@
+in_features: 2
+out_features: 1
+num_layers: 16
+width: 16
+activation: tanh
+
+epoch: 10000
+grid_density: 101
+plot_density: 100
+learning_rate: 1.0e-3
+loss_weights: [1.0, 10000.0, 10000000.0]   # [方程式, 外周(φ=0), 中心4点(φ=1)]
