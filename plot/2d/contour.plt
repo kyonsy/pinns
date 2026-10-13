@@ -13,13 +13,13 @@ if (ARGC >= 1) {
 
 # ファイル名
 in  = "./out/".type.".dat"
-out = "./graph/".type.".png"
+out = "./graph/2d/".type.".png"
 
 set contour base
 set cntrparam levels 10
 unset key
 
-# set cbrange [0:1]
+set cbrange [0:1]
 set terminal pngcairo size 800,600
 set output out
 

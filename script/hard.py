@@ -18,12 +18,12 @@ cfg.load(ROOT / "config/hard.yaml")
 print(f"device: {cfg.DEVICE}")
 
 # クラスを変えればモデルが切り替わる
-model=fcnn.PoissonFCNN2().to(cfg.DEVICE)
+model=fcnn.PoissonFCNN1().to(cfg.DEVICE)
 
 train.train_hard(model)
 X_out= sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
 with torch.no_grad():
     Y_out=model(X_out)
 
-util.save_grid(ROOT / f"out/hard.dat",X_out,Y_out)
+util.save_grid(ROOT / f"out/hard1.dat",X_out,Y_out)
 print(f"complete") 

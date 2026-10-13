@@ -1,0 +1,4 @@
+mse_hard1_g          :0.010526932340391237
+mse_hard2_gl         :0.00024300423488265858
+mse_hard1_numerical  :0.24531889001078325
+mse_hard2_numerical  :0.029385636702284088

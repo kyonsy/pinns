@@ -25,3 +25,18 @@ X =torch.tensor(np.column_stack([x.ravel(), y.ravel()]))
 
 util.save_grid("./out/g.dat",X,hc.G(X))
 util.save_grid("./out/gl.dat",X,hc.G(X)*hc.L(X))
+
+# 中心付近の断面 (y=b). C は格子間隔 h の幅で変化するので, 格子より細かく 401 点とる
+# 列: x, C, G, L, G*L
+P_k = hc.param()[0]
+a, b = P_k[0,0].item(), P_k[3,0].item()
+h = 1/n
+xs = torch.linspace(b - 4*h, a + 4*h, 401, dtype=torch.float64)
+Xs = torch.column_stack([xs, torch.full_like(xs, b)])
+section = torch.column_stack([xs[:,None], hc.C(Xs), hc.G(Xs), hc.L(Xs), hc.G(Xs)*hc.L(Xs)])
+np.savetxt(ROOT / "out/hc_section.dat", section.numpy(), fmt="%.8f", header="x C G L GL (y=b)")
+
+# 中心付近の C を 2 次元で (3D 図用). [b-4h, a+4h]^2 を 121x121 点でとる
+cs = torch.linspace(b - 4*h, a + 4*h, 121, dtype=torch.float64)
+Xc = torch.cartesian_prod(cs, cs)    # x が外側, y が内側 (sample_grid と同じ並び)
+util.save_grid(ROOT / "out/hc_C_center.dat", Xc, hc.C(Xc))

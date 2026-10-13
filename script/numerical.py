@@ -18,6 +18,10 @@ cfg.load(ROOT / "config/numerical.yaml")
 XY = numerical.solve_jacobi(cfg.GRID_DENSITY)
 # XY = numerical.solve_scipy(cfg.GRID_DENSITY)   # scipy で一度に解く場合 (速い)
 
+# solve_* は x,y∈[0,1] の (n+1)^2 点を返すが, PINN 側 (sampling.sample_grid) は x,y∈[0,1) の n^2 点なので
+# x=1, y=1 の外周 (φ=0 の境界) を落として座標をそろえる
+XY = XY[(XY[:,0] < 1) & (XY[:,1] < 1)]
+
 util.save_grid(ROOT / "out/numerical.dat",XY[:,:2],XY[:,2:])
 
 print("complete")
