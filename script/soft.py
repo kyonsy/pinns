@@ -14,7 +14,7 @@ import src.train as train
 import src.util as util
 
 # 入力するデータを選択
-type = "test"
+type = "soft1"
 
 # コマンドライン引数がある場合は、そちらを type に代入
 if len(sys.argv) > 1:

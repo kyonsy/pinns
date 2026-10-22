@@ -5,8 +5,6 @@ from functools import cache
 from . import config as cfg
 
 
-
-
 """
 境界条件用
 φ = G + D*C*N と使う

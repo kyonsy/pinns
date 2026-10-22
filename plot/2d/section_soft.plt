@@ -8,11 +8,8 @@ i0 = (n-1)/2    # y=0.5 の下側の行 (整数割り算)
 
 types = "numerical soft1 soft2 soft3 soft4"
 
-# 凡例と線の種類 (types と同じ順番)
-array TITLE[5] = ["数値解", "λ = 1", "λ = 10^2", "λ = 10^4", "λ = 10^6"]
-array LC[5] = ["black", "#a0a0a0", "#808080", "#505050", "#1f5fbf"]
-array DT[5] = [1, 3, 4, 2, 2]     # 1:実線 2:破線 3:点線 4:一点鎖線
-array LW[5] = [3, 3, 2.5, 2.5, 3]
+array TITLE[5] = ["数値解", "λ = 1", "λ = 10^2", "λ = 10^4", "λ = 10^6"]   # 凡例 (types と同じ順番)
+array LC[5] = ["black", "#e41a1c", "#ff7f00", "#4daf4a", "#377eb8"]   # 線の色. 白背景で見やすい濃い色 (黒, 赤, 橙, 緑, 青)
 
 # 各ファイルから y=0.5 の両隣の 2 行を取り出して $sec にまとめる (section.plt と同じ)
 in(t) = "./out/".t.".dat"
@@ -44,7 +41,7 @@ set format y "%.1f"
 set grid xtics ytics lt 1 lw 1 lc rgb "#e0e0e0"
 set border 3
 set tics nomirror
-set key below maxrows 2 width 2
+set key top right box opaque
 
 plot for [k=1:words(types)] $sec index k-1 using 1:2 smooth unique \
-     with lines lw LW[k] dt DT[k] lc rgb LC[k] title TITLE[k]
+     with lines lw 2 lc rgb LC[k] title TITLE[k]

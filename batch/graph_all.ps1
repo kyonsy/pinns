@@ -25,6 +25,6 @@ gnuplot -c "./plot/2d/section.plt" gl hard2 numerical
 gnuplot -c "./plot/2d/hard_constraint.plt"
 gnuplot -c "./plot/3d/hard_constraint.plt"
 
-# ハード制約の断面 (G, hard1, G·L, hard2, 数値解) と, 数値解との MSE の棒グラフ (先に script/make_diff.py で out/mse.dat を作っておく)
-gnuplot -c "./plot/2d/section_hard.plt"
+# ソフト制約の断面と, 数値解との MSE の棒グラフ (先に script/make_diff.py で out/mse.dat を作っておく)
+gnuplot -c "./plot/2d/section_soft.plt"
 gnuplot -c "./plot/2d/mse.plt"

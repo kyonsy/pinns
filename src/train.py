@@ -44,7 +44,7 @@ def train_hard(model:nn.Module)->None:
         l=loss.loss_hard(X,Y)
         l.backward()
         optimizer.step()
-        if i % 1000 == 0 or i == cfg.EPOCH-1:
+        if i % 100 == 0 or i == cfg.EPOCH-1:
             print(f"EPOCH:{i} loss:{l.item():.6e}")
  
             
@@ -75,5 +75,5 @@ def train_soft(model:nn.Module)->None:
         l=loss.loss_soft(X,Y,Y0,Y1)
         l.backward()
         optimizer.step()
-        if i % 1000 == 0 or i == cfg.EPOCH-1:
+        if i % 100 == 0 or i == cfg.EPOCH-1:
                     print(f"EPOCH:{i} loss:{l.item():.6e}")
