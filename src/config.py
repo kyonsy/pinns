@@ -40,11 +40,11 @@ def _activation(name:str)->type[nn.Module]:
         raise ValueError(f"未対応の活性化関数:{name} (候補: {list(_ACTIVATIONS)})")
     return _ACTIVATIONS[name] 
 
-def _odd_int(v:Any) -> int:
-    n = int(v)
-    if (n % 2) == 0:
-        raise ValueError(f"GRID_DENSITYは奇数にしてください: {n}")
-    return n
+# def _odd_int(v:Any) -> int:
+#     n = int(v)
+#     if (n % 2) == 0:
+#         raise ValueError(f"GRID_DENSITYは奇数にしてください: {n}")
+#     return n
 
 # 変数名 -> 変数変換
 _CONVERT:dict[str,Callable[[Any],Any]] = {
@@ -55,7 +55,7 @@ _CONVERT:dict[str,Callable[[Any],Any]] = {
     "EPOCH"         : int,                  
     "NUM_SAMPLE"    : int,             
     "NUM_PLOT"      : int,               
-    "GRID_DENSITY"  : _odd_int,           
+    "GRID_DENSITY"  : int,           
     "PLOT_DENSITY"  : int,           
     "LEARNING_RATE" : float,   
     "LOSS_WEIGHTS"  : partial(torch.tensor,dtype=torch.float64),  

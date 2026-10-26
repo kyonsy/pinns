@@ -1,0 +1,11 @@
+# 2026/10/26 ネットワークの規模を大きくしてみる
+IN_FEATURES: 2
+OUT_FEATURES: 1
+NUM_LAYERS: 64
+WIDTH: 64
+ACTIVATION: tanh
+
+EPOCH: 10000
+GRID_DENSITY: 100
+LEARNING_RATE: 1.0e-3
+LOSS_WEIGHTS: [1.0, 1.0, 1.0]   # [方程式, 外周(φ=0), 中心4点(φ=1)]
