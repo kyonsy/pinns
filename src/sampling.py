@@ -30,25 +30,10 @@ def center_points(divisions:int) -> torch.Tensor:
     a, b = (i/divisions for i in center_indices(divisions))
     return torch.tensor([[a,a],[a,b],[b,a],[b,b]],device=cfg.DEVICE)
 
-def sample_random_default()->torch.Tensor:
-    return torch.rand(cfg.NUM_SAMPLE,cfg.IN_FEATURES,device=cfg.DEVICE)
-
-def sample_random(NUM_SAMPLE:int,IN_FEATURES:int)->torch.Tensor:
-    return torch.rand(NUM_SAMPLE,IN_FEATURES,device=cfg.DEVICE)
-
-def sample_grid(divisions:int,scale:Sequence[float])->torch.Tensor:
-    """
-    各次元 [0,scale[i]) の範囲の格子点をとる. 次元数は len(scale)
-    点の間隔は 1/divisions で全次元共通. 各次元の点数は divisions*scale[i] 個
-    例: sample_grid(100,[2.0,1.0]) → x∈[0,2) に200点, y∈[0,1) に100点
-    """
-    axes = [[x/divisions for x in range(round(divisions*s))] for s in scale]
-    return torch.tensor(list(itertools.product(*axes)),device=cfg.DEVICE)
-
 def sample_grid_closed(divisions:int,scale:Sequence[float])->torch.Tensor:
     """
-    sample_grid と同じだが, 各次元 [0,scale[i]] の両端を含む. 出力・グラフ用
-    点の間隔は 1/divisions. 各次元の点数は divisions*scale[i]+1 個
+    各次元 [0,scale[i]] の範囲の格子点を両端を含めてとる. 次元数は len(scale). 学習用 (float32)
+    点の間隔は 1/divisions で全次元共通. 各次元の点数は divisions*scale[i]+1 個
     例: sample_grid_closed(100,[1.0,1.0]) → x,y∈[0,1] に101点ずつ
     """
     axes = [[x/divisions for x in range(round(divisions*s)+1)] for s in scale]
@@ -63,13 +48,3 @@ def sample_square_boundry(divisions:int) -> torch.Tensor:
     top    = torch.tensor([[x/divisions,1] for x in range(divisions)])
     left   = torch.tensor([[0,x/divisions] for x in range(divisions)])
     return torch.vstack([bottom,right,top,left]).to(cfg.DEVICE)
-
-
-
-
-
-
-if __name__=="__main__":
-    # print(sample_random_default())
-    print(sample_grid(2,[1.0,1.0]))
-    print(sample_square_boundry(100))

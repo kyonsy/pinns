@@ -2,45 +2,6 @@ import torch
 
 from . import config as cfg
 
-def parabola(X:torch.Tensor,Y:torch.Tensor)->torch.Tensor:
-    """y=x^2に関するPINNsの損失関数"""
-    Z=((Y-X**2)**2)
-    l=Z.mean()
-    return l
-
-def vertical_throw(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor)->torch.Tensor:
-    """
-    鉛直投げ上げ問題に関するPINNの損失関数
-    最大の高さが, 落下する時間が1となるように無次元化してある
-    入力と出力が1次元で動作
-    """
-    Y_t   = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
-    Y_tt  = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
-    Y_t0  = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
-    
-    l_ode = ((Y_tt+8)**2).mean()
-    l_ic1 = (Y0**2).mean()
-    l_ic2 = ((Y_t0-4)**2).mean()
-    
-    l= l_ode+l_ic1+l_ic2
-    
-    return l
-
-def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,zeta:float)->torch.Tensor: 
-    Y_t   = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
-    Y_tt  = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
-    Y_t0  = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
-
-    w0L_ode = cfg.LOSS_WEIGHTS[0] * ((Y_tt + 2*zeta*Y_t + Y)**2).mean()
-    w1L_ic1 = cfg.LOSS_WEIGHTS[1] * ((Y0 - 1)**2).mean()
-    w2L_ic2 = cfg.LOSS_WEIGHTS[2] * (Y_t0**2).mean()
-    
-    # print(zeta)
-    # print(type(zeta))
-    
-    L=  w0L_ode+w1L_ic1+w2L_ic2
-    return L
-
 def loss_hard(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
     """
     ポアソンの方程式に関するPINNの損失関数
@@ -86,31 +47,3 @@ def loss_soft_center(X:torch.Tensor,Y:torch.Tensor,Y1:torch.Tensor) -> torch.Ten
 
     L = w[0] * L_ode + w[1] * L_bc1
     return L
-
-
-
-
-
-if __name__=='__main__':
-    from . import sampling
-    from . import fcnn
-
-    fcnn= fcnn.PoissonFCNN()
-    X=sampling.sample_grid(100,[1.0,1.0])
-    # print(f"Sample in grid {X}\n")
-    # print(f"Shape: {X.shape}")
-    # K=sampling.sample_random(100,2)
-    # print(f"Sample in random {K}")
-    # print(f"Shape: {K.shape}")
-    
-    X.requires_grad_(True)
-    
-    Y=fcnn(X)
-    
-    l=loss_hard(X,Y)
-    
-    
-
-
-    
-    

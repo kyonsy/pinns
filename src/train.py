@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -6,25 +5,6 @@ from . import sampling
 from . import loss
 from . import config as cfg
 
-def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
-    optimizer=optim.Adam(model.parameters(),lr=cfg.LEARNING_RATE)
-    # 格子点は毎回同じなので, ループの外で1回だけ作る
-    X=sampling.sample_grid(cfg.divisions(),[trange])
-    X0=torch.zeros_like(X)
-    
-    X.requires_grad_(True)
-    X0.requires_grad_(True)
-    
-    for _ in range(cfg.EPOCH):
-        Y=model(X)
-        Y0=model(X0)
-        
-        optimizer.zero_grad()
-        l=loss.loss_dump_sys(X,Y,X0,Y0,zeta)
-        l.backward()
-        optimizer.step()
-       
-       
 def train_hard(model:nn.Module)->None:
     """
     ポアソンの方程式に関するPINNの学習用関数
