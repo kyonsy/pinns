@@ -1,25 +1,29 @@
 # ソフト制約の PINN (境界の重みを変えたもの) と数値解を y=0.5 の断面で比べる
 # y=0.5 の取り方は section.plt と同じ (両隣の 2 行を x ごとに平均する)
-# 使い方: gnuplot -c ./plot/2d/section_soft.plt [<type1> <type2> ...]   → ./graph/2d/section_soft.png (最大 5 個)
+# 使い方: gnuplot -c ./plot/2d/section_soft.plt [<file1> <file2> ...]   → ./graph/2d/section_soft.png (最大 5 個)
 
 set encoding utf8
 if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. gnuplot -e "n=..." -c ... で変えられる
 i0 = (n-1)/2    # y=0.5 の下側の行 (整数割り算)
 
-types = "numerical soft_w1 soft_w1e2 soft_w1e4 soft_w1e6"
+types = "numerical.dat soft_w1.dat soft_w1e2.dat soft_w1e4.dat soft_w1e6.dat"
 
-# コマンドライン引数がある場合は、そちらを types に代入
+# コマンドライン引数がある場合は、そちらを types に代入 (./out/ の中のファイル名)
 if (ARGC >= 1) {
       types = ""
       do for [k=1:ARGC] { types = types.value("ARG".k)." " }
 }
 
 # out/ のファイル名 → 凡例
-title(t) = t eq "numerical" ? "数値解"   :            t eq "soft_w1"   ? "λ = 1"    :            t eq "soft_w1e2" ? "λ = 10^2" :            t eq "soft_w1e4" ? "λ = 10^4" :            t eq "soft_w1e6" ? "λ = 10^6" : t
+title(t) = t eq "numerical.dat" ? "数値解"   : \
+           t eq "soft_w1.dat"   ? "λ = 1"    : \
+           t eq "soft_w1e2.dat" ? "λ = 10^2" : \
+           t eq "soft_w1e4.dat" ? "λ = 10^4" : \
+           t eq "soft_w1e6.dat" ? "λ = 10^6" : t
 array LC[5] = ["black", "#e41a1c", "#ff7f00", "#4daf4a", "#377eb8"]   # 線の色. 白背景で見やすい濃い色 (黒, 赤, 橙, 緑, 青)
 
 # 各ファイルから y=0.5 の両隣の 2 行を取り出して $sec にまとめる (section.plt と同じ)
-in(t) = "./out/".t.".dat"
+in(t) = "./out/".t
 set print $sec
 do for [t in types] {
       set table $raw

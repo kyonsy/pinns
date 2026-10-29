@@ -1,12 +1,12 @@
-# y=0.5 の断面で複数の解を重ねて描き, ./graph/2d/section_<type1>.png に保存する
-# 使い方: gnuplot -c ./plot/2d/section.plt <type1> <type2> ...   (入力は ./out/<type>.dat, 最大 9 個)
+# y=0.5 の断面で複数の解を重ねて描き, ./graph/2d/section_<file1 の拡張子を除いた名前>.png に保存する
+# 使い方: gnuplot -c ./plot/2d/section.plt <file1> <file2> ...   (入力は ./out/<file>, 最大 9 個)
 #
 # 格子は y=i/n (n = POINTS_PER_SIDE - 1 は奇数) なので y=0.5 ちょうどの点はない
 # 両隣の 2 行 (i=(n-1)/2, (n+1)/2) を smooth unique で x ごとに平均し, y=0.5 での値とする (線形補間と同じ)
 
 if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. gnuplot -e "n=..." -c ... で変えられる
 
-types = "hc_g hard_g numerical"
+types = "hc_g.dat hard_g.dat numerical.dat"
 
 # コマンドライン引数がある場合は、そちらを types に代入
 if (ARGC >= 1) {
@@ -15,8 +15,10 @@ if (ARGC >= 1) {
 }
 
 # ファイル名
-in(t) = "./out/".t.".dat"
-out   = "./graph/2d/section_".word(types,1).".png"
+# 拡張子を除いた名前 (出力する png の名前や凡例に使う)
+stem(f) = strstrt(f, ".") ? f[1:strstrt(f, ".")-1] : f
+in(t) = "./out/".t
+out   = "./graph/2d/section_".stem(word(types,1)).".png"
 
 i0 = (n-1)/2    # y=0.5 の下側の行 (整数割り算)
 
@@ -47,4 +49,4 @@ unset print
 set terminal pngcairo size 800,600
 set output out
 
-plot for [k=1:words(types)] $sec index k-1 using 1:2 smooth unique with lines lw 2 title word(types,k)
+plot for [k=1:words(types)] $sec index k-1 using 1:2 smooth unique with lines lw 2 title stem(word(types,k)) noenhanced   # noenhanced: 名前の _ を下付き文字にしない

@@ -4,16 +4,18 @@ set xlabel "x"
 set ylabel "y"
 set cblabel "f"
 
-type="hard_g"
+file="hard_g.dat"
 
-# コマンドライン引数がある場合は、そちらを type に代入
+# コマンドライン引数がある場合は、そちらを file に代入 (./out/ の中のファイル名)
 if (ARGC >= 1) {
-      type = ARG1
+      file = ARG1
 }
 
 # ファイル名
-in  = "./out/".type.".dat"
-out = "./graph/2d/".type.".png"
+# 拡張子を除いた名前 (出力する png の名前や凡例に使う)
+stem(f) = strstrt(f, ".") ? f[1:strstrt(f, ".")-1] : f
+in  = "./out/".file
+out = "./graph/2d/".stem(file).".png"
 
 set contour base
 set cntrparam levels 10

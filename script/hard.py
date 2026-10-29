@@ -1,7 +1,7 @@
 """
-ハード制約の PINN でポアソンの方程式を解き, out/<name>.dat に保存する
-name は src/experiments.py の実験の名前. 設定は config/hard.yaml
-使い方: python -m script.hard [hard_g|hard_gl]
+ハード制約の PINN でポアソンの方程式を解き, 結果を out/ に保存する
+引数は config/ の設定ファイル名. 出力ファイル名は src/experiments.py の一覧から決まる
+使い方: python -m script.hard [hard_g.yaml|hard_gl.yaml]
 """
 import argparse
 
@@ -11,28 +11,30 @@ import src.fcnn as fcnn
 import src.train as train
 import src.util as util
 
-# 実験の名前 -> モデルのクラス
+# 設定ファイル名 -> モデルのクラス
 MODELS = {
-    "hard_g"  : fcnn.PoissonFCNN1,
-    "hard_gl" : fcnn.PoissonFCNN2,
+    "hard_g.yaml"  : fcnn.PoissonFCNN1,
+    "hard_gl.yaml" : fcnn.PoissonFCNN2,
 }
 
-def run(name:str) -> None:
-    exp = experiments.EXPERIMENTS[name]
-    cfg = config.load(config.ROOT / f"config/{exp.config}.yaml")
-    print(f"{name}: {exp.description}")
+def run(config_file:str) -> None:
+    """config/<config_file> の設定で学習し, 一覧の出力ファイルに保存する"""
+    exp = experiments.EXPERIMENTS[config_file]
+    cfg = config.load(config.ROOT / "config" / config_file)
+    print(f"{config_file} -> {exp.output}: {exp.description}")
     print(f"device: {config.DEVICE}")
 
-    model = MODELS[name](cfg).to(config.DEVICE)
+    model = MODELS[config_file](cfg).to(config.DEVICE)
     train.train_hard(model,cfg)
-    util.save_prediction(config.ROOT / f"out/{name}.dat",model,cfg.divisions())
+    util.save_prediction(config.ROOT / "out" / exp.output,model,cfg.divisions())
     print("complete")
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="ハード制約の PINN")
-    parser.add_argument("name", nargs="?", default="hard_g", choices=experiments.of_kind("hard"), help="実験の名前")
+    parser.add_argument("config", nargs="?", default="hard_g.yaml", choices=experiments.of_kind("hard"),
+                        help="config/ の設定ファイル名")
     args = parser.parse_args()
-    run(args.name)
+    run(args.config)
 
 if __name__ == "__main__":
     main()

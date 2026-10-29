@@ -5,15 +5,15 @@
 set encoding utf8
 
 # out/ のファイル名 → 棒の下に出すラベル
-label(t) = t eq "soft_w1"   ? "ソフト\nλ = 1"      : \
-           t eq "soft_w1e2" ? "ソフト\nλ = 10^2"   : \
-           t eq "soft_w1e4" ? "ソフト\nλ = 10^4"   : \
-           t eq "soft_w1e6" ? "ソフト\nλ = 10^6"   : \
-           t eq "hard_g"    ? "ハード1\n(G)"       : \
-           t eq "hard_gl"   ? "ハード2\n(G·L)"     : t
+label(t) = t eq "soft_w1.dat"   ? "ソフト\nλ = 1"      : \
+           t eq "soft_w1e2.dat" ? "ソフト\nλ = 10^2"   : \
+           t eq "soft_w1e4.dat" ? "ソフト\nλ = 10^4"   : \
+           t eq "soft_w1e6.dat" ? "ソフト\nλ = 10^6"   : \
+           t eq "hard_g.dat"    ? "ハード1\n(G)"       : \
+           t eq "hard_gl.dat"   ? "ハード2\n(G·L)"     : t
 
-# 強調する棒 (hard_gl) だけ青, ほかは灰色
-color(t) = t eq "hard_gl" ? 0x1f5fbf : 0xa0a0a0
+# 強調する棒 (hard_gl.dat) だけ青, ほかは灰色
+color(t) = t eq "hard_gl.dat" ? 0x1f5fbf : 0xa0a0a0
 
 set terminal pngcairo size 1200,800 font "Meiryo,16" enhanced
 set output "./graph/2d/mse.png"

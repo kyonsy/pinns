@@ -1,16 +1,18 @@
-# φ を pm3d で曲面として描き, ./graph/3d/<type>.png に保存する
-# 使い方: gnuplot -c ./plot/3d/surface.plt <type>   (入力は ./out/<type>.dat)
+# φ を pm3d で曲面として描き, ./graph/3d/<file の拡張子を除いた名前>.png に保存する
+# 使い方: gnuplot -c ./plot/3d/surface.plt <file>   (入力は ./out/<file>)
 
-type="soft_w1"
+file="soft_w1.dat"
 
-# コマンドライン引数がある場合は、そちらを type に代入
+# コマンドライン引数がある場合は、そちらを file に代入 (./out/ の中のファイル名)
 if (ARGC >= 1) {
-      type = ARG1
+      file = ARG1
 }
 
 # ファイル名
-in  = "./out/".type.".dat"
-out = "./graph/3d/".type.".png"
+# 拡張子を除いた名前 (出力する png の名前や凡例に使う)
+stem(f) = strstrt(f, ".") ? f[1:strstrt(f, ".")-1] : f
+in  = "./out/".file
+out = "./graph/3d/".stem(file).".png"
 
 set xlabel "x"
 set ylabel "y"
