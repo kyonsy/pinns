@@ -1,10 +1,3 @@
-import torch
-import math as m
-from functools import cache
-
-from . import config as cfg
-
-
 """
 境界条件用
 φ = G + D*C*N と使う
@@ -12,13 +5,20 @@ from . import config as cfg
     G = D/D(中心の4点)           : 外周で0, 中心の4点で1
     C = Π_k (1-exp(-|X-p_k|²/s²)) : 中心の4点 p_k で0, 離れると1
 """
-    
+import torch
+import math as m
+from functools import cache
+
+from . import config as cfg
+from . import sampling
+
+
 @cache
 def param():
+    """中心の4点 P_k (cfg.DEVICE 上), C の幅 s²=h², L の基準 r0²=h²/2 を返す"""
     n = cfg.divisions()
-    a,b = m.ceil(n/2)/n,m.floor(n/2)/n
     h = 1/n
-    P_k = torch.tensor([[a,a],[a,b],[b,a],[b,b]])
+    P_k = sampling.center_points(n)
     return P_k,h**2,h**2/2
     
 @cache

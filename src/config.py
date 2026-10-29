@@ -64,11 +64,11 @@ _CONVERT:dict[str,Callable[[Any],Any]] = {
     "HARD_BOUNDARY" : bool
 }
 
-"""
-yamlファイルの値でこのモジュールの設定値を上書きする
-yamlに書かれていない項目はデフォルト値のまま
-"""
 def load(path: str | Path) -> None:
+    """
+    yamlファイルの値でこのモジュールの設定値を上書きする
+    yamlに書かれていない項目はデフォルト値のまま
+    """
    
     with open(path, encoding="utf-8") as f:
         data: dict[str, Any] = yaml.safe_load(f) or {}
@@ -79,11 +79,11 @@ def load(path: str | Path) -> None:
             raise ValueError(f"yamlで {key} の値がからです")
         globals()[key] = _CONVERT[key](value)
 
-"""
-格子の分割数 n (= POINTS_PER_SIDE - 1). 点の間隔は 1/n
-sampling の関数や数値解はこの分割数を受け取る
-"""
 def divisions() -> int:
+    """
+    格子の分割数 n (= POINTS_PER_SIDE - 1). 点の間隔は 1/n
+    sampling の関数や数値解はこの分割数を受け取る
+    """
     return POINTS_PER_SIDE - 1
 
 def __getattr__(name:str):

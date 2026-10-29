@@ -1,5 +1,3 @@
-import math as m
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -27,12 +25,12 @@ def train_dump_sys(model:nn.Module,trange:float,zeta:float) -> None:
         optimizer.step()
        
        
-"""
-ポアソンの方程式に関するPINNの学習用関数
-入力が2つ(x,y). 出力が一つ(φ)
-境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
-""" 
 def train_hard(model:nn.Module)->None:
+    """
+    ポアソンの方程式に関するPINNの学習用関数
+    入力が2つ(x,y). 出力が一つ(φ)
+    境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
+    """
     optimizer=optim.Adam(model.parameters(),lr=cfg.LEARNING_RATE)
     # 格子点は毎回同じなので, ループの外で1回だけ作る
     X  = sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
@@ -48,20 +46,17 @@ def train_hard(model:nn.Module)->None:
             print(f"EPOCH:{i} loss:{l.item():.6e}")
  
             
-"""
-ポアソンの方程式に関するPINNの学習用関数
-入力が2つ(x,y). 出力が一つ(φ)
-Y0,Y1は境界条件
-""" 
 def train_soft(model:nn.Module)->None:
-    phi1 = m.ceil(cfg.divisions()/2)/cfg.divisions()
-    phi2 = m.floor(cfg.divisions()/2)/cfg.divisions()
-    
+    """
+    ポアソンの方程式に関するPINNの学習用関数
+    入力が2つ(x,y). 出力が一つ(φ)
+    Y0,Y1は境界条件
+    """
     optimizer=optim.Adam(model.parameters(),lr=cfg.LEARNING_RATE)
     for i in range(cfg.EPOCH):
         X  = sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
         X0 = sampling.sample_square_boundry(cfg.divisions())
-        X1 = torch.tensor([[phi1,phi1],[phi1,phi2],[phi2,phi1],[phi2,phi2]],device=cfg.DEVICE)
+        X1 = sampling.center_points(cfg.divisions())
         
         X.requires_grad  = True
         X0.requires_grad = True
@@ -79,20 +74,17 @@ def train_soft(model:nn.Module)->None:
                     print(f"EPOCH:{i} loss:{l.item():.6e}")
 
 
-"""
-ポアソンの方程式に関するPINNの学習用関数
-入力が2つ(x,y). 出力が一つ(φ)
-外周の φ=0 はモデル側(SoftCenterFCNN)で固定しているので, 外周の損失用の点はサンプルしない
-Y1は中心の4点の境界条件
-"""
 def train_soft_center(model:nn.Module)->None:
-    phi1 = m.ceil(cfg.divisions()/2)/cfg.divisions()
-    phi2 = m.floor(cfg.divisions()/2)/cfg.divisions()
-
+    """
+    ポアソンの方程式に関するPINNの学習用関数
+    入力が2つ(x,y). 出力が一つ(φ)
+    外周の φ=0 はモデル側(SoftCenterFCNN)で固定しているので, 外周の損失用の点はサンプルしない
+    Y1は中心の4点の境界条件
+    """
     optimizer=optim.Adam(model.parameters(),lr=cfg.LEARNING_RATE)
     # 格子点は毎回同じなので, ループの外で1回だけ作る
     X  = sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
-    X1 = torch.tensor([[phi1,phi1],[phi1,phi2],[phi2,phi1],[phi2,phi2]],device=cfg.DEVICE)
+    X1 = sampling.center_points(cfg.divisions())
     X.requires_grad = True
 
     for i in range(cfg.EPOCH):

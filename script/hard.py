@@ -33,10 +33,10 @@ print(f"device: {cfg.DEVICE}")
 model=models[type]().to(cfg.DEVICE)
 
 train.train_hard(model)
-# 出力は x=1, y=1 の外周も含めて正方形全体 [0,1]x[0,1] でとる
-X_out= sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
+# 出力は数値解と同じ点 (sampling.output_grid) でとる. 座標は float64 のまま保存し, モデルには float32 で入れる
+X_out= torch.tensor(sampling.output_grid(cfg.divisions()),device=cfg.DEVICE)
 with torch.no_grad():
-    Y_out=model(X_out)
+    Y_out=model(X_out.float())
 
 util.save_grid(ROOT / f"out/{type}.dat",X_out,Y_out)
 print(f"complete")

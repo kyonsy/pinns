@@ -22,13 +22,15 @@ import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 from numpy.typing import NDArray
 
+from . import sampling
 
-"""
-境界条件を設定した初期状態を返す
-    phi   : 外周は0, 中心の4点は1, それ以外は0 (初期値)
-    fixed : 境界条件で値が決まっている点は True
-"""
+
 def boundary_condition(n:int) -> tuple[NDArray[np.float64], NDArray[np.bool_]]:
+    """
+    境界条件を設定した初期状態を返す
+        phi   : 外周は0, 中心の4点は1, それ以外は0 (初期値)
+        fixed : 境界条件で値が決まっている点は True
+    """
     phi:   NDArray[np.float64] = np.zeros((n+1, n+1))
     fixed: NDArray[np.bool_]   = np.zeros((n+1, n+1), dtype=bool)
 
@@ -39,7 +41,7 @@ def boundary_condition(n:int) -> tuple[NDArray[np.float64], NDArray[np.bool_]]:
     fixed[:, n]  = True   # y=1
 
     # 中心の周りの4点で φ=1
-    centers: list[int] = [math.ceil(n/2), math.floor(n/2)]
+    centers: tuple[int, int] = sampling.center_indices(n)
     i: int
     j: int
     for i in centers:
@@ -50,24 +52,21 @@ def boundary_condition(n:int) -> tuple[NDArray[np.float64], NDArray[np.bool_]]:
     return phi, fixed
 
 
-"""
-phi[i,j] を [x, y, φ] の表に並べ直す
-"""
 def to_table(phi:NDArray[np.float64]) -> NDArray[np.float64]:
+    """
+    phi[i,j] を [x, y, φ] の表に並べ直す. 点は sampling.output_grid と同じ
+    """
     n: int = phi.shape[0] - 1
-    x: NDArray[np.float64]
-    y: NDArray[np.float64]
-    x, y = np.meshgrid(np.arange(n+1) / n, np.arange(n+1) / n, indexing="ij")
-    return np.column_stack([x.ravel(), y.ravel(), phi.ravel()])
+    return np.column_stack([sampling.output_grid(n), phi.ravel()])
 
 
-"""
-ヤコビ法
-各点を上下左右4点の平均で置き換える操作を, 値がほとんど変わらなくなるまで繰り返す
-    tol : 1回の更新での変化の最大値がこれを下回ったら終了
-          ヤコビ法は収束が遅く, 変化が小さくても正しい解からまだ離れていることがあるので小さめにとる
-"""
 def solve_jacobi(n:int, tol:float=1e-10, max_iter:int=100000) -> NDArray[np.float64]:
+    """
+    ヤコビ法
+    各点を上下左右4点の平均で置き換える操作を, 値がほとんど変わらなくなるまで繰り返す
+        tol : 1回の更新での変化の最大値がこれを下回ったら終了
+              ヤコビ法は収束が遅く, 変化が小さくても正しい解からまだ離れていることがあるので小さめにとる
+    """
     phi:   NDArray[np.float64]
     fixed: NDArray[np.bool_]
     phi, fixed = boundary_condition(n)
@@ -97,11 +96,11 @@ def solve_jacobi(n:int, tol:float=1e-10, max_iter:int=100000) -> NDArray[np.floa
     return to_table(phi)
 
 
-"""
-連立一次方程式として一度に解く
-「各点の値 = 4点の平均」を (4点の和) - 4φ[i,j] = 0 の形に並べて A φ = b とし, scipy の spsolve で解く
-"""
 def solve_scipy(n:int) -> NDArray[np.float64]:
+    """
+    連立一次方程式として一度に解く
+    「各点の値 = 4点の平均」を (4点の和) - 4φ[i,j] = 0 の形に並べて A φ = b とし, scipy の spsolve で解く
+    """
     phi:   NDArray[np.float64]
     fixed: NDArray[np.bool_]
     phi, fixed = boundary_condition(n)

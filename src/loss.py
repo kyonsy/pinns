@@ -2,18 +2,18 @@ import torch
 
 from . import config as cfg
 
-"""y=x^2に関するPINNsの損失関数"""
 def parabola(X:torch.Tensor,Y:torch.Tensor)->torch.Tensor:
+    """y=x^2に関するPINNsの損失関数"""
     Z=((Y-X**2)**2)
     l=Z.mean()
     return l
 
-"""
-鉛直投げ上げ問題に関するPINNの損失関数
-最大の高さが, 落下する時間が1となるように無次元化してある
-入力と出力が1次元で動作
-"""
-def vertical_throw(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor)->torch.Tensor:  
+def vertical_throw(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor)->torch.Tensor:
+    """
+    鉛直投げ上げ問題に関するPINNの損失関数
+    最大の高さが, 落下する時間が1となるように無次元化してある
+    入力と出力が1次元で動作
+    """
     Y_t   = torch.autograd.grad(Y,X,torch.ones_like(X),create_graph=True)[0]
     Y_tt  = torch.autograd.grad(Y_t,X,torch.ones_like(Y_t),create_graph=True)[0]
     Y_t0  = torch.autograd.grad(Y0,X0,torch.ones_like(X0),create_graph=True)[0]
@@ -41,12 +41,12 @@ def loss_dump_sys(X:torch.Tensor,Y:torch.Tensor,X0:torch.Tensor,Y0:torch.Tensor,
     L=  w0L_ode+w1L_ic1+w2L_ic2
     return L
 
-"""
-ポアソンの方程式に関するPINNの損失関数
-入力が2つ(x,y). 出力が一つ(φ)
-境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
-"""
 def loss_hard(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
+    """
+    ポアソンの方程式に関するPINNの損失関数
+    入力が2つ(x,y). 出力が一つ(φ)
+    境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
+    """
     dY = torch.autograd.grad(Y,X,torch.ones_like(Y),create_graph=True)[0]
     phi_x,phi_y = dY[:,0:1],dY[:,1:2]
     
@@ -56,14 +56,14 @@ def loss_hard(X:torch.Tensor,Y:torch.Tensor) -> torch.Tensor:
     L_ode  = ((phi_xx + phi_yy)**2).mean()
     return L_ode
 
-"""
-ポアソンの方程式に関するPINNの損失関数(ソフト制約)
-入力が2つ(x,y). 出力が一つ(φ)
-Y0: 外周での出力 (φ=0 にしたい)
-Y1: 中心の4点での出力 (φ=1 にしたい)
-重みは cfg.LOSS_WEIGHTS = [方程式, 外周, 中心] の順
-"""
 def loss_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
+    """
+    ポアソンの方程式に関するPINNの損失関数(ソフト制約)
+    入力が2つ(x,y). 出力が一つ(φ)
+    Y0: 外周での出力 (φ=0 にしたい)
+    Y1: 中心の4点での出力 (φ=1 にしたい)
+    重みは cfg.LOSS_WEIGHTS = [方程式, 外周, 中心] の順
+    """
     w = cfg.LOSS_WEIGHTS
     L_ode = loss_hard(X,Y)
     L_bc0 = (Y0**2).mean()
@@ -72,14 +72,14 @@ def loss_soft(X:torch.Tensor,Y:torch.Tensor,Y0:torch.Tensor,Y1:torch.Tensor) -> 
     L = w[0] * L_ode + w[1] * L_bc0 + w[2] * L_bc1
     return L
 
-"""
-ポアソンの方程式に関するPINNの損失関数(外周はハード制約, 中心はソフト制約)
-入力が2つ(x,y). 出力が一つ(φ)
-外周の φ=0 はモデル側(SoftCenterFCNN)で固定しているので, 外周の項は計算しない
-Y1: 中心の4点での出力 (φ=1 にしたい)
-重みは cfg.LOSS_WEIGHTS = [方程式, 中心] の順
-"""
 def loss_soft_center(X:torch.Tensor,Y:torch.Tensor,Y1:torch.Tensor) -> torch.Tensor:
+    """
+    ポアソンの方程式に関するPINNの損失関数(外周はハード制約, 中心はソフト制約)
+    入力が2つ(x,y). 出力が一つ(φ)
+    外周の φ=0 はモデル側(SoftCenterFCNN)で固定しているので, 外周の項は計算しない
+    Y1: 中心の4点での出力 (φ=1 にしたい)
+    重みは cfg.LOSS_WEIGHTS = [方程式, 中心] の順
+    """
     w = cfg.LOSS_WEIGHTS
     L_ode = loss_hard(X,Y)
     L_bc1 = ((Y1 - 1)**2).mean()

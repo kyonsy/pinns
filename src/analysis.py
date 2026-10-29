@@ -4,11 +4,11 @@ from . import config as cfg
 
 
 
-"""
-減衰振動 y'' + 2*zeta*y' + y = 0, y(0)=1, y'(0)=0 の解析解
-zeta<1: 不足減衰, zeta=1: 臨界減衰, zeta>1: 過減衰
-"""
 def dumped_oscillation(X:torch.Tensor,zeta:float) -> torch.Tensor:
+    """
+    減衰振動 y'' + 2*zeta*y' + y = 0, y(0)=1, y'(0)=0 の解析解
+    zeta<1: 不足減衰, zeta=1: 臨界減衰, zeta>1: 過減衰
+    """
     if math.isclose(zeta,1.0):
         return (1 + X)*torch.exp(-X)
     elif zeta < 1.0:
@@ -19,15 +19,6 @@ def dumped_oscillation(X:torch.Tensor,zeta:float) -> torch.Tensor:
         r1 = -zeta + omega
         r2 = -zeta - omega
         return (-r2*torch.exp(r1*X) + r1*torch.exp(r2*X))/(r1 - r2)
-
-
-
-
-
-
-
-
-
 
 
 if __name__=='__main__':

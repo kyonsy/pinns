@@ -6,21 +6,35 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import src.config as cfg
+import src.sampling as sampling
 import src.util as util
 
 cfg.load(ROOT / "config/templete.yaml")
 
 n = cfg.divisions()    # 分割数. 1辺の点数は n+1
 
-# x=1, y=1 の外周も含めて正方形全体 [0,1]x[0,1] の (n+1)^2 点 (sampling.sample_grid_closed と同じ)
-x, y = np.meshgrid(np.arange(n+1) / n, np.arange(n+1) / n, indexing="ij")
-X =np.column_stack([x.ravel(), y.ravel()])
+# 数値解・PINN と同じ出力点
+X = sampling.output_grid(n)
 
-g         = np.loadtxt("./out/g.dat")[:,2:]
-gl        = np.loadtxt("./out/gl.dat")[:,2:]
-hard1     = np.loadtxt("./out/hard1.dat")[:,2:]
-hard2     = np.loadtxt("./out/hard2.dat")[:,2:]
-numerical = np.loadtxt("./out/numerical.dat")[:,2:]
+def load_phi(name:str) -> np.ndarray:
+    """
+    out/{name}.dat の φ の列を読む
+    点の数や座標が X と違う (別の POINTS_PER_SIDE で作った古いファイルなど) と, 同じ行どうしの比較が
+    別の点どうしの比較になってしまうので, その場合はエラーにする
+    """
+    data = np.loadtxt(ROOT / f"out/{name}.dat")
+    if data.shape[0] != X.shape[0] or not np.allclose(data[:,:2], X, rtol=0, atol=1e-5):
+        raise ValueError(
+            f"out/{name}.dat の点が出力格子と一致しません: {data.shape[0]} 点 (期待 {X.shape[0]} 点, POINTS_PER_SIDE={n+1}). "
+            f"同じ POINTS_PER_SIDE で作り直してください"
+        )
+    return data[:,2:]
+
+g         = load_phi("g")
+gl        = load_phi("gl")
+hard1     = load_phi("hard1")
+hard2     = load_phi("hard2")
+numerical = load_phi("numerical")
 
 diff_hard1_g         = hard1 - g
 diff_hard2_gl        = hard2 - gl
@@ -59,5 +73,5 @@ print(f"mse_gl_numerical     :{mse_gl_numerical}")
 mse_types = ["soft1","soft2","soft3","soft4","hard1","hard2"]
 with open(ROOT / "out/mse.dat","w") as fp:
     for t in mse_types:
-        mse = ((np.loadtxt(f"./out/{t}.dat")[:,2:] - numerical)**2).mean()
+        mse = ((load_phi(t) - numerical)**2).mean()
         fp.write(f"{t} {mse:.6e}\n")
