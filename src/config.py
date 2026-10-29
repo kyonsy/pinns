@@ -8,6 +8,9 @@ import torch
 import torch.nn as nn
 import yaml
 
+# プロジェクトのルート (src/ の1つ上). config/ や out/ はここからの相対パスで指す
+ROOT          : Path = Path(__file__).resolve().parent.parent
+
 # 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU (yaml では変えない定数)
 DEVICE        : torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

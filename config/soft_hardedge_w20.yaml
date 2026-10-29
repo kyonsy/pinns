@@ -1,4 +1,4 @@
-# soft1 と同じ設定で, 外周の φ=0 だけハード制約にする
+# soft_w1 と同じ設定で, 外周の φ=0 だけハード制約にする
 IN_FEATURES: 2
 OUT_FEATURES: 1
 NUM_LAYERS: 16

@@ -1,7 +1,7 @@
 # diff を pm3d で曲面として描き, ./graph/3d/<type>.png に保存する
 # 使い方: gnuplot -c ./plot/3d/diff.plt <type>   (入力は ./out/<type>.dat)
 
-type="diff_hard1_numerical"
+type="diff_hard_g-numerical"
 
 # コマンドライン引数がある場合は、そちらを type に代入
 if (ARGC >= 1) {

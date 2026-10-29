@@ -4,7 +4,7 @@ set xlabel "x"
 set ylabel "y"
 set cblabel "f"
 
-type="hard"
+type="hard_g"
 
 # コマンドライン引数がある場合は、そちらを type に代入
 if (ARGC >= 1) {

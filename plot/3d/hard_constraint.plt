@@ -1,11 +1,11 @@
 # ハード制約の説明図 (3D 版). 色や視点は plot/3d/surface.plt とそろえている
-#   左: G(x,y) = D/D(p_k)            (./out/g.dat)
+#   左: G(x,y) = D/D(p_k)            (./out/hc_g.dat)
 #   右: 中心付近を拡大した C(x,y)     (./out/hc_C_center.dat)
-# 先に python script/export_hard_constraint.py でデータを作っておく
+# 先に python -m script.export_hard_constraint でデータを作っておく
 # 使い方: gnuplot -c ./plot/3d/hard_constraint.plt   → ./graph/3d/hard_constraint.png
 
 set encoding utf8
-n = 101    # 分割数 = POINTS_PER_SIDE - 1
+if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. script.plot_all からは -e "n=..." で渡す
 a = ceil(n/2.0)/real(n)     # 中心の4点の座標 (hard_constraint.param と同じ). real で整数割り算を避ける
 b = floor(n/2.0)/real(n)
 
@@ -35,7 +35,7 @@ set yrange [0:1]
 set xtics 0.5
 set ytics 0.5
 set ztics 0.5
-splot "./out/g.dat" using 1:2:3 with pm3d
+splot "./out/hc_g.dat" using 1:2:3 with pm3d
 
 # ---- 右: 中心付近の C ----
 set title "C(x,y)　中心付近を拡大　（4点 p_k で0）"

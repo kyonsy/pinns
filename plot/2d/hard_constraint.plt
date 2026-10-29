@@ -1,11 +1,11 @@
 # ハード制約の説明図
-#   左: G(x,y) = D/D(p_k) の等高線図 (./out/g.dat)
+#   左: G(x,y) = D/D(p_k) の等高線図 (./out/hc_g.dat)
 #   右: 中心付近 y=b での C と G の断面 (./out/hc_section.dat)
-# 先に python script/export_hard_constraint.py でデータを作っておく
+# 先に python -m script.export_hard_constraint でデータを作っておく
 # 使い方: gnuplot -c ./plot/2d/hard_constraint.plt   → ./graph/2d/hard_constraint.png
 
 set encoding utf8
-n = 101    # 分割数 = POINTS_PER_SIDE - 1
+if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. script.plot_all からは -e "n=..." で渡す
 a = ceil(n/2.0)/real(n)     # 中心の4点の座標 (hard_constraint.param と同じ). real で整数割り算を避ける
 b = floor(n/2.0)/real(n)
 
@@ -29,7 +29,7 @@ unset key
 set palette defined (0 "#f7fbff", 0.3 "#c6dbef", 0.6 "#6baed6", 0.8 "#2171b5", 1 "#08306b")   # 白→青→紺
 set palette maxcolors 10                          # 10段階に塗り分けて等高線図らしくする
 set pm3d interpolate 4,4                         # 格子の粗さを目立たなくする
-splot "./out/g.dat" using 1:2:3 with pm3d
+splot "./out/hc_g.dat" using 1:2:3 with pm3d
 
 # ---- 右: 中心付近の断面 ----
 reset

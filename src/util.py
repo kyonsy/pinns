@@ -1,10 +1,14 @@
-import torch
 import os
 from pathlib import Path
 from typing import Union
 
 import numpy as np
 import numpy.typing as npt
+import torch
+import torch.nn as nn
+
+from . import config
+from . import sampling
 
 ArrayOrTensor = Union[torch.Tensor,npt.ArrayLike]
 
@@ -38,5 +42,15 @@ def save_grid(
     with open(path,"w") as fp:
         for block in data.reshape(-1,n,data.shape[1]):
             np.savetxt(fp,block,fmt=fmt)
-            fp.write("\n")    
+            fp.write("\n")
 
+
+def save_prediction(path: str | os.PathLike[str], model: nn.Module, n: int) -> None:
+    """
+    model の出力を数値解と同じ点 (sampling.output_grid) でとって save_grid で保存する
+    座標は float64 のまま保存し, モデルには float32 で入れる
+    """
+    X = torch.tensor(sampling.output_grid(n), device=config.DEVICE)
+    with torch.no_grad():
+        Y = model(X.float())
+    save_grid(path, X, Y)

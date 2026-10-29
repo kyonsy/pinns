@@ -1,42 +1,38 @@
-import sys
-from pathlib import Path
+"""
+ハード制約の PINN でポアソンの方程式を解き, out/<name>.dat に保存する
+name は src/experiments.py の実験の名前. 設定は config/hard.yaml
+使い方: python -m script.hard [hard_g|hard_gl]
+"""
+import argparse
 
-# プロジェクトルート (script/ の1つ上). どこから実行しても src を import できるようにする
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
-
-import torch
-
-import src.fcnn as fcnn
 import src.config as config
-import src.sampling as sampling
+import src.experiments as experiments
+import src.fcnn as fcnn
 import src.train as train
 import src.util as util
 
-# 出力ファイル名 -> モデルのクラス
-models = {
-    "hard1" : fcnn.PoissonFCNN1,
-    "hard2" : fcnn.PoissonFCNN2,
+# 実験の名前 -> モデルのクラス
+MODELS = {
+    "hard_g"  : fcnn.PoissonFCNN1,
+    "hard_gl" : fcnn.PoissonFCNN2,
 }
 
-# 入力するデータを選択
-type = "hard1"
+def run(name:str) -> None:
+    exp = experiments.EXPERIMENTS[name]
+    cfg = config.load(config.ROOT / f"config/{exp.config}.yaml")
+    print(f"{name}: {exp.description}")
+    print(f"device: {config.DEVICE}")
 
-# コマンドライン引数がある場合は、そちらを type に代入
-if len(sys.argv) > 1:
-    type = sys.argv[1]
+    model = MODELS[name](cfg).to(config.DEVICE)
+    train.train_hard(model,cfg)
+    util.save_prediction(config.ROOT / f"out/{name}.dat",model,cfg.divisions())
+    print("complete")
 
-cfg = config.load(ROOT / "config/hard.yaml")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="ハード制約の PINN")
+    parser.add_argument("name", nargs="?", default="hard_g", choices=experiments.of_kind("hard"), help="実験の名前")
+    args = parser.parse_args()
+    run(args.name)
 
-print(f"device: {config.DEVICE}")
-
-model=models[type](cfg).to(config.DEVICE)
-
-train.train_hard(model,cfg)
-# 出力は数値解と同じ点 (sampling.output_grid) でとる. 座標は float64 のまま保存し, モデルには float32 で入れる
-X_out= torch.tensor(sampling.output_grid(cfg.divisions()),device=config.DEVICE)
-with torch.no_grad():
-    Y_out=model(X_out.float())
-
-util.save_grid(ROOT / f"out/{type}.dat",X_out,Y_out)
-print(f"complete")
+if __name__ == "__main__":
+    main()
