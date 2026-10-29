@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from functools import partial
@@ -41,38 +42,21 @@ _CONVERT:dict[str,Callable[[Any],Any]] = {
     "ACTIVATION"    : _activation,
 }
 
+@dataclass(frozen=True)
 class Config:
     """
-    yaml 1つ分の設定. load() で作り, 使う関数に引数で渡す
-    作ったあとは値を変更できない. yaml に書かれていない項目を読むとエラーになる
+    yaml 1つ分の設定. load() で作り, 使う関数に引数で渡す. 作ったあとは値を変更できない
+    yaml に書かれていない項目は None になる
     """
-    IN_FEATURES   : int          # 入力層の幅
-    OUT_FEATURES  : int          # 出力層の幅
-    NUM_LAYERS    : int          # 隠れ層の数
-    WIDTH         : int          # 隠れ層の幅
-    EPOCH         : int          # 学習回数
-    POINTS_PER_SIDE: int         # 1辺 [0,1] にとる格子点の数 (両端を含む). 間隔は 1/(N-1). 中心の4点を作るため偶数にする
-    LEARNING_RATE : float        # 学習率
-    LOSS_WEIGHTS  : torch.Tensor # 損失関数の各項の重み
-    ACTIVATION    : type[nn.Module] # 活性化関数
-
-    def __init__(self, values:dict[str, Any]) -> None:
-        """values は yaml と同じ形の辞書 {変数名: 値}. 値は _CONVERT で変換して持つ"""
-        for key, value in values.items():
-            if key not in _CONVERT:
-                raise KeyError(f"yamlに未知の変数があります: {key}")
-            if value is None:
-                raise ValueError(f"yamlで {key} の値がからです")
-            object.__setattr__(self, key, _CONVERT[key](value))
-
-    def __getattr__(self, name:str):
-        # 普通に属性が見つからなかったときだけ呼ばれる
-        if name in _CONVERT:
-            raise AttributeError(f"Config.{name}はyamlで設定されていません")
-        raise AttributeError(f"Config に {name} という項目はありません")
-
-    def __setattr__(self, name:str, value:Any) -> None:
-        raise AttributeError("Config の値は変更できません. yaml を書き換えるか, Config({...}) で作り直してください")
+    IN_FEATURES    : int | None             = None  # 入力層の幅
+    OUT_FEATURES   : int | None             = None  # 出力層の幅
+    NUM_LAYERS     : int | None             = None  # 隠れ層の数
+    WIDTH          : int | None             = None  # 隠れ層の幅
+    EPOCH          : int | None             = None  # 学習回数
+    POINTS_PER_SIDE: int | None             = None  # 1辺 [0,1] にとる格子点の数 (両端を含む). 間隔は 1/(N-1). 中心の4点を作るため偶数にする
+    LEARNING_RATE  : float | None           = None  # 学習率
+    LOSS_WEIGHTS   : torch.Tensor | None    = None  # 損失関数の各項の重み [方程式, 外周, 中心4点]
+    ACTIVATION     : type[nn.Module] | None = None  # 活性化関数
 
     def divisions(self) -> int:
         """
@@ -81,8 +65,19 @@ class Config:
         """
         return self.POINTS_PER_SIDE - 1
 
+def from_dict(data:dict[str, Any]) -> Config:
+    """yaml と同じ形の辞書 {変数名: 値} から Config を作る. 値は _CONVERT で変換する"""
+    values: dict[str, Any] = {}
+    for key, value in data.items():
+        if key not in _CONVERT:
+            raise KeyError(f"yamlに未知の変数があります: {key}")
+        if value is None:
+            raise ValueError(f"yamlで {key} の値がからです")
+        values[key] = _CONVERT[key](value)
+    return Config(**values)
+
 def load(path: str | Path) -> Config:
     """yamlファイルを読んで Config を作る"""
     with open(path, encoding="utf-8") as f:
         data: dict[str, Any] = yaml.safe_load(f) or {}
-    return Config(data)
+    return from_dict(data)

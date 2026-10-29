@@ -25,7 +25,7 @@ def load_phi(file:str, X:np.ndarray) -> np.ndarray:
         )
     return data[:,2:]
 
-def run() -> None:
+def main() -> None:
     cfg = config.load(config.ROOT / "config/templete.yaml")
     out = config.ROOT / "out"
 
@@ -46,4 +46,4 @@ def run() -> None:
             fp.write(f"{file} {mse:.6e}\n")
 
 if __name__ == "__main__":
-    run()
+    main()

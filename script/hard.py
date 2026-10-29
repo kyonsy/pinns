@@ -1,40 +1,44 @@
 """
 ハード制約の PINN でポアソンの方程式を解き, 結果を out/ に保存する
-引数は config/ の設定ファイル名. 出力ファイル名は src/experiments.py の一覧から決まる
-使い方: python -m script.hard [hard_g.yaml|hard_gl.yaml]
+使い方: python -m script.hard <モデル> <設定ファイル> <出力ファイル>
+    例: python -m script.hard g  hard.yaml hard_g.dat    (φ = G + D·C·N)
+        python -m script.hard gl hard.yaml hard_gl.dat   (φ = G·L + D·C·N)
 """
 import argparse
 
+import torch
+
 import src.config as config
-import src.experiments as experiments
 import src.fcnn as fcnn
+import src.sampling as sampling
 import src.train as train
 import src.util as util
 
-# 設定ファイル名 -> モデルのクラス
+# モデルの名前 -> クラス
 MODELS = {
-    "hard_g.yaml"  : fcnn.PoissonFCNN1,
-    "hard_gl.yaml" : fcnn.PoissonFCNN2,
+    "g"  : fcnn.PoissonFCNN1,   # φ = G + D·C·N
+    "gl" : fcnn.PoissonFCNN2,   # φ = G·L + D·C·N
 }
-
-def run(config_file:str) -> None:
-    """config/<config_file> の設定で学習し, 一覧の出力ファイルに保存する"""
-    exp = experiments.EXPERIMENTS[config_file]
-    cfg = config.load(config.ROOT / "config" / config_file)
-    print(f"{config_file} -> {exp.output}: {exp.description}")
-    print(f"device: {config.DEVICE}")
-
-    model = MODELS[config_file](cfg).to(config.DEVICE)
-    train.train_hard(model,cfg)
-    util.save_prediction(config.ROOT / "out" / exp.output,model,cfg.divisions())
-    print("complete")
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="ハード制約の PINN")
-    parser.add_argument("config", nargs="?", default="hard_g.yaml", choices=experiments.of_kind("hard"),
-                        help="config/ の設定ファイル名")
+    parser.add_argument("model", choices=MODELS, help="境界条件を満たす部分 (g: G, gl: G·L)")
+    parser.add_argument("config", help="config/ の設定ファイル名 (例: hard.yaml)")
+    parser.add_argument("output", help="out/ に保存するファイル名 (例: hard_g.dat)")
     args = parser.parse_args()
-    run(args.config)
+
+    cfg = config.load(config.ROOT / "config" / args.config)
+    print(f"device: {config.DEVICE}")
+
+    model = MODELS[args.model](cfg).to(config.DEVICE)
+    train.train_hard(model,cfg)
+
+    # 出力は数値解と同じ点 (sampling.output_grid) でとる. 座標は float64 のまま保存し, モデルには float32 で入れる
+    X_out = torch.tensor(sampling.output_grid(cfg.divisions()),device=config.DEVICE)
+    with torch.no_grad():
+        Y_out = model(X_out.float())
+    util.save_grid(config.ROOT / "out" / args.output,X_out,Y_out)
+    print("complete")
 
 if __name__ == "__main__":
     main()

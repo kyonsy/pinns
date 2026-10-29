@@ -21,13 +21,11 @@ def main() -> None:
     parser.add_argument("--solver", default="jacobi", choices=SOLVERS, help="解き方")
     parser.add_argument("--repeat", type=int, default=1, help="同じ計算を繰り返す回数 (C 版との速度比較用)")
     args = parser.parse_args()
-    run(args.solver, args.repeat)
 
-def run(solver:str="jacobi", repeat:int=1) -> None:
     cfg = config.load(config.ROOT / "config/numerical.yaml")
 
-    for _ in range(repeat):
-        XY = SOLVERS[solver](cfg.divisions())
+    for _ in range(args.repeat):
+        XY = SOLVERS[args.solver](cfg.divisions())
 
     util.save_grid(config.ROOT / "out/numerical.dat",XY[:,:2],XY[:,2:])
     print("complete")

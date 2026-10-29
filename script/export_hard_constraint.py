@@ -10,7 +10,7 @@ import src.hard_constraint as hc
 import src.sampling as sampling
 import src.util as util
 
-def run() -> None:
+def main() -> None:
     cfg = config.load(config.ROOT / "config/templete.yaml")
     print(f"device: {config.DEVICE}")
 
@@ -38,4 +38,4 @@ def run() -> None:
     util.save_grid(out / "hc_C_center.dat", Xc, hc.C(Xc,n))
 
 if __name__ == "__main__":
-    run()
+    main()
