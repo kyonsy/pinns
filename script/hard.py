@@ -8,7 +8,7 @@ sys.path.insert(0, str(ROOT))
 import torch
 
 import src.fcnn as fcnn
-import src.config as cfg
+import src.config as config
 import src.sampling as sampling
 import src.train as train
 import src.util as util
@@ -26,15 +26,15 @@ type = "hard1"
 if len(sys.argv) > 1:
     type = sys.argv[1]
 
-cfg.load(ROOT / "config/hard.yaml")
+cfg = config.load(ROOT / "config/hard.yaml")
 
-print(f"device: {cfg.DEVICE}")
+print(f"device: {config.DEVICE}")
 
-model=models[type]().to(cfg.DEVICE)
+model=models[type](cfg).to(config.DEVICE)
 
-train.train_hard(model)
+train.train_hard(model,cfg)
 # 出力は数値解と同じ点 (sampling.output_grid) でとる. 座標は float64 のまま保存し, モデルには float32 で入れる
-X_out= torch.tensor(sampling.output_grid(cfg.divisions()),device=cfg.DEVICE)
+X_out= torch.tensor(sampling.output_grid(cfg.divisions()),device=config.DEVICE)
 with torch.no_grad():
     Y_out=model(X_out.float())
 

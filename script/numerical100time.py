@@ -9,11 +9,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-import src.config as cfg
+import src.config as config
 import src.numerical as numerical
 import src.util as util
 
-cfg.load(ROOT / "config/numerical.yaml")
+cfg = config.load(ROOT / "config/numerical.yaml")
 for _ in range(100):
     XY = numerical.solve_jacobi(cfg.divisions())
     

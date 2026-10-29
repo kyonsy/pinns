@@ -5,11 +5,11 @@ from pathlib import Path
 # プロジェクトルート (script/ の1つ上). どこから実行しても src を import できるようにする
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-import src.config as cfg
+import src.config as config
 import src.sampling as sampling
 import src.util as util
 
-cfg.load(ROOT / "config/templete.yaml")
+cfg = config.load(ROOT / "config/templete.yaml")
 
 n = cfg.divisions()    # 分割数. 1辺の点数は n+1
 

@@ -3,9 +3,9 @@ import torch.optim as optim
 
 from . import sampling
 from . import loss
-from . import config as cfg
+from .config import Config
 
-def train_hard(model:nn.Module)->None:
+def train_hard(model:nn.Module,cfg:Config)->None:
     """
     ポアソンの方程式に関するPINNの学習用関数
     入力が2つ(x,y). 出力が一つ(φ)
@@ -26,7 +26,7 @@ def train_hard(model:nn.Module)->None:
             print(f"EPOCH:{i} loss:{l.item():.6e}")
  
             
-def train_soft(model:nn.Module)->None:
+def train_soft(model:nn.Module,cfg:Config)->None:
     """
     ポアソンの方程式に関するPINNの学習用関数
     入力が2つ(x,y). 出力が一つ(φ)
@@ -47,14 +47,14 @@ def train_soft(model:nn.Module)->None:
         Y1 = model(X1)
         
         optimizer.zero_grad()
-        l=loss.loss_soft(X,Y,Y0,Y1)
+        l=loss.loss_soft(X,Y,Y0,Y1,cfg.LOSS_WEIGHTS)
         l.backward()
         optimizer.step()
         if i % 100 == 0 or i == cfg.EPOCH-1:
                     print(f"EPOCH:{i} loss:{l.item():.6e}")
 
 
-def train_soft_center(model:nn.Module)->None:
+def train_soft_center(model:nn.Module,cfg:Config)->None:
     """
     ポアソンの方程式に関するPINNの学習用関数
     入力が2つ(x,y). 出力が一つ(φ)
@@ -72,7 +72,7 @@ def train_soft_center(model:nn.Module)->None:
         Y1 = model(X1)
 
         optimizer.zero_grad()
-        l=loss.loss_soft_center(X,Y,Y1)
+        l=loss.loss_soft_center(X,Y,Y1,cfg.LOSS_WEIGHTS)
         l.backward()
         optimizer.step()
         if i % 100 == 0 or i == cfg.EPOCH-1:

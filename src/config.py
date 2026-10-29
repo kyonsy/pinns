@@ -8,20 +8,7 @@ import torch
 import torch.nn as nn
 import yaml
 
-IN_FEATURES   : int          # 入力層の幅
-OUT_FEATURES  : int          # 出力層の幅
-NUM_LAYERS    : int          # 隠れ層の数
-WIDTH         : int          # 隠れ層の幅
-EPOCH         : int          # 学習回数
-POINTS_PER_SIDE: int         # 1辺 [0,1] にとる格子点の数 (両端を含む). 間隔は 1/(N-1). 中心の4点を作るため偶数にする
-LEARNING_RATE : float        # 学習率
-LOSS_WEIGHTS  : torch.Tensor # 損失関数の各項の重み
-HARD_BOUNDARY : bool = False # ソフト制約で外周の φ=0 だけ出力の変換で厳密に課すか
-
-# 活性化関数
-ACTIVATION    : type[nn.Module]      
-
-# 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU
+# 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU (yaml では変えない定数)
 DEVICE        : torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # yaml で活性化関数を名前指定するための対応表
@@ -52,29 +39,49 @@ _CONVERT:dict[str,Callable[[Any],Any]] = {
     "HARD_BOUNDARY" : bool
 }
 
-def load(path: str | Path) -> None:
+class Config:
     """
-    yamlファイルの値でこのモジュールの設定値を上書きする
-    yamlに書かれていない項目はデフォルト値のまま
+    yaml 1つ分の設定. load() で作り, 使う関数に引数で渡す
+    作ったあとは値を変更できない. yaml に書かれていない項目を読むとエラーになる
     """
-   
+    IN_FEATURES   : int          # 入力層の幅
+    OUT_FEATURES  : int          # 出力層の幅
+    NUM_LAYERS    : int          # 隠れ層の数
+    WIDTH         : int          # 隠れ層の幅
+    EPOCH         : int          # 学習回数
+    POINTS_PER_SIDE: int         # 1辺 [0,1] にとる格子点の数 (両端を含む). 間隔は 1/(N-1). 中心の4点を作るため偶数にする
+    LEARNING_RATE : float        # 学習率
+    LOSS_WEIGHTS  : torch.Tensor # 損失関数の各項の重み
+    ACTIVATION    : type[nn.Module] # 活性化関数
+    HARD_BOUNDARY : bool = False # ソフト制約で外周の φ=0 だけ出力の変換で厳密に課すか
+
+    def __init__(self, values:dict[str, Any]) -> None:
+        """values は yaml と同じ形の辞書 {変数名: 値}. 値は _CONVERT で変換して持つ"""
+        for key, value in values.items():
+            if key not in _CONVERT:
+                raise KeyError(f"yamlに未知の変数があります: {key}")
+            if value is None:
+                raise ValueError(f"yamlで {key} の値がからです")
+            object.__setattr__(self, key, _CONVERT[key](value))
+
+    def __getattr__(self, name:str):
+        # 普通に属性が見つからなかったときだけ呼ばれる
+        if name in _CONVERT:
+            raise AttributeError(f"Config.{name}はyamlで設定されていません")
+        raise AttributeError(f"Config に {name} という項目はありません")
+
+    def __setattr__(self, name:str, value:Any) -> None:
+        raise AttributeError("Config の値は変更できません. yaml を書き換えるか, Config({...}) で作り直してください")
+
+    def divisions(self) -> int:
+        """
+        格子の分割数 n (= POINTS_PER_SIDE - 1). 点の間隔は 1/n
+        sampling の関数や数値解はこの分割数を受け取る
+        """
+        return self.POINTS_PER_SIDE - 1
+
+def load(path: str | Path) -> Config:
+    """yamlファイルを読んで Config を作る"""
     with open(path, encoding="utf-8") as f:
         data: dict[str, Any] = yaml.safe_load(f) or {}
-    for key, value in data.items():
-        if key not in _CONVERT:
-            raise KeyError(f"yamlに未知の変数があります: {key}")
-        if value is None:
-            raise ValueError(f"yamlで {key} の値がからです")
-        globals()[key] = _CONVERT[key](value)
-
-def divisions() -> int:
-    """
-    格子の分割数 n (= POINTS_PER_SIDE - 1). 点の間隔は 1/n
-    sampling の関数や数値解はこの分割数を受け取る
-    """
-    return POINTS_PER_SIDE - 1
-
-def __getattr__(name:str):
-    if name in _CONVERT:
-        raise AttributeError(f"config.{name}はyamlで設定されていません")
-    raise AttributeError(f"module 'config' has no attribute '{name}'")
+    return Config(data)

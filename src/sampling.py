@@ -4,7 +4,7 @@ import torch
 import itertools
 from collections.abc import Sequence
 from numpy.typing import NDArray
-from . import config as cfg
+from .config import DEVICE
 
 def output_grid(divisions:int) -> NDArray[np.float64]:
     """
@@ -28,7 +28,7 @@ def center_points(divisions:int) -> torch.Tensor:
     境界条件 φ=1 を課す点. PINN のハード制約・ソフト制約, 数値解のすべてでこの4点を使う
     """
     a, b = (i/divisions for i in center_indices(divisions))
-    return torch.tensor([[a,a],[a,b],[b,a],[b,b]],device=cfg.DEVICE)
+    return torch.tensor([[a,a],[a,b],[b,a],[b,b]],device=DEVICE)
 
 def sample_grid_closed(divisions:int,scale:Sequence[float])->torch.Tensor:
     """
@@ -37,7 +37,7 @@ def sample_grid_closed(divisions:int,scale:Sequence[float])->torch.Tensor:
     例: sample_grid_closed(100,[1.0,1.0]) → x,y∈[0,1] に101点ずつ
     """
     axes = [[x/divisions for x in range(round(divisions*s)+1)] for s in scale]
-    return torch.tensor(list(itertools.product(*axes)),device=cfg.DEVICE)
+    return torch.tensor(list(itertools.product(*axes)),device=DEVICE)
 
 def sample_square_boundry(divisions:int) -> torch.Tensor:
     """
@@ -47,4 +47,4 @@ def sample_square_boundry(divisions:int) -> torch.Tensor:
     right  = torch.tensor([[1,x/divisions] for x in range(divisions)])
     top    = torch.tensor([[x/divisions,1] for x in range(divisions)])
     left   = torch.tensor([[0,x/divisions] for x in range(divisions)])
-    return torch.vstack([bottom,right,top,left]).to(cfg.DEVICE)
+    return torch.vstack([bottom,right,top,left]).to(DEVICE)

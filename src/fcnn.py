@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from . import config as cfg
+from .config import Config
 from . import hard_constraint as hc
 
 
@@ -9,8 +9,9 @@ class FCNN(nn.Module):
     hidden : nn.ModuleList
     final  : nn.Linear
     act    : nn.Module
+    n      : int        # 格子の分割数. ハード制約の関数に渡す
     
-    def __init__(self) -> None:
+    def __init__(self, cfg:Config) -> None:
         super().__init__()
         self.first=nn.Linear(cfg.IN_FEATURES,cfg.WIDTH)
         self.hidden = nn.ModuleList(
@@ -18,6 +19,7 @@ class FCNN(nn.Module):
         )
         self.final = nn.Linear(cfg.WIDTH, cfg.OUT_FEATURES)
         self.act = cfg.ACTIVATION()
+        self.n = cfg.divisions()
 
 
     def forward(self, X: torch.Tensor) -> torch.Tensor:
@@ -41,12 +43,12 @@ class PoissonFCNN1(FCNN):
     """
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         N = super().forward(X)
-        return hc.G(X) + hc.D(X) * hc.C(X) * N
+        return hc.G(X,self.n) + hc.D(X) * hc.C(X,self.n) * N
 
 class PoissonFCNN2(FCNN):
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         N = super().forward(X)
-        return hc.G(X) * hc.L(X) + hc.D(X) * hc.C(X) * N
+        return hc.G(X,self.n) * hc.L(X,self.n) + hc.D(X) * hc.C(X,self.n) * N
 
 class SoftCenterFCNN(FCNN):
     """
