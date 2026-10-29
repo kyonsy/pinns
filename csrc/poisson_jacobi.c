@@ -50,7 +50,7 @@
  *
  *   直接実行する場合 (プロジェクト直下で):
  *   ./build/jacobi [n] [出力ファイル] [tol] [max_iter]
- *     n        : 分割数 (既定 101 = config/poisson.yaml の GRID_DENSITY)
+ *     n        : 分割数 (既定 101 = config/numerical.yaml の POINTS_PER_SIDE - 1)
  *     出力     : 既定 out/numerical_c.dat (実行した場所からの相対パス)
  *     tol      : 既定 1e-10
  *     max_iter : 既定 100000
@@ -253,7 +253,7 @@ static int write_table(const char *filename, int n, const double *phi)
 int main(int argc, char *argv[])
 {
     /* ---------- コマンドライン引数 (省略時は既定値) ---------- */
-    int n              = (argc > 1) ? atoi(argv[1]) : 101;   /* GRID_DENSITY と同じ */
+    int n              = (argc > 1) ? atoi(argv[1]) : 101;   /* POINTS_PER_SIDE - 1 と同じ */
     const char *output = (argc > 2) ? argv[2] : "out/numerical_c.dat";
     double tol         = (argc > 3) ? atof(argv[3]) : 1e-10; /* src/numerical.py と同じ */
     int max_iter       = (argc > 4) ? atoi(argv[4]) : 100000;

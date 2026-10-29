@@ -3,7 +3,7 @@
 # 使い方: gnuplot -c ./plot/2d/section_soft.plt   → ./graph/2d/section_soft.png
 
 set encoding utf8
-n = 101    # GRID_DENSITY
+n = 101    # 分割数 = POINTS_PER_SIDE - 1
 i0 = (n-1)/2    # y=0.5 の下側の行 (整数割り算)
 
 types = "numerical soft1 soft2 soft3 soft4"

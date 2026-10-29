@@ -13,17 +13,30 @@ import src.sampling as sampling
 import src.train as train
 import src.util as util
 
+# 出力ファイル名 -> モデルのクラス
+models = {
+    "hard1" : fcnn.PoissonFCNN1,
+    "hard2" : fcnn.PoissonFCNN2,
+}
+
+# 入力するデータを選択
+type = "hard1"
+
+# コマンドライン引数がある場合は、そちらを type に代入
+if len(sys.argv) > 1:
+    type = sys.argv[1]
+
 cfg.load(ROOT / "config/hard.yaml")
 
 print(f"device: {cfg.DEVICE}")
 
-# クラスを変えればモデルが切り替わる
-model=fcnn.PoissonFCNN2().to(cfg.DEVICE)
+model=models[type]().to(cfg.DEVICE)
 
 train.train_hard(model)
-X_out= sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
+# 出力は x=1, y=1 の外周も含めて正方形全体 [0,1]x[0,1] でとる
+X_out= sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
 with torch.no_grad():
     Y_out=model(X_out)
 
-util.save_grid(ROOT / f"out/hard1.dat",X_out,Y_out)
-print(f"complete") 
+util.save_grid(ROOT / f"out/{type}.dat",X_out,Y_out)
+print(f"complete")

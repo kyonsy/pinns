@@ -7,8 +7,10 @@ foreach($type in $soft_types){
     python -u "./script/soft.py" $type
 }
 python -u "./script/numerical.py"
-python -u "./script/hard.py"
-python -u "./script/check_G.py"
+python -u "./script/hard.py" hard1
+python -u "./script/hard.py" hard2
+python -u "./script/export_hard_constraint.py"
+python -u "./script/make_diff.py"
 
 
 

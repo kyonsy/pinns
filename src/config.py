@@ -15,10 +15,11 @@ WIDTH         : int          # 隠れ層の幅
 EPOCH         : int          # 学習回数
 NUM_SAMPLE    : int          # ランダム・境界サンプリングの点数
 NUM_PLOT      : int          # 解析解プロットの点数
-GRID_DENSITY  : int          # 学習用グリッドの単位長さあたりの点数
+POINTS_PER_SIDE: int         # 1辺 [0,1] にとる格子点の数 (両端を含む). 間隔は 1/(N-1). 中心の4点を作るため偶数にする
 PLOT_DENSITY  : int          # 出力用グリッドの単位長さあたりの点数
 LEARNING_RATE : float        # 学習率
 LOSS_WEIGHTS  : torch.Tensor # 損失関数の各項の重み
+HARD_BOUNDARY : bool = False # ソフト制約で外周の φ=0 だけ出力の変換で厳密に課すか
 
 # 活性化関数
 ACTIVATION    : type[nn.Module]      
@@ -43,7 +44,7 @@ def _activation(name:str)->type[nn.Module]:
 # def _odd_int(v:Any) -> int:
 #     n = int(v)
 #     if (n % 2) == 0:
-#         raise ValueError(f"GRID_DENSITYは奇数にしてください: {n}")
+#         raise ValueError(f"POINTS_PER_SIDEは偶数にしてください: {n}")
 #     return n
 
 # 変数名 -> 変数変換
@@ -55,11 +56,12 @@ _CONVERT:dict[str,Callable[[Any],Any]] = {
     "EPOCH"         : int,                  
     "NUM_SAMPLE"    : int,             
     "NUM_PLOT"      : int,               
-    "GRID_DENSITY"  : int,           
+    "POINTS_PER_SIDE": int,          
     "PLOT_DENSITY"  : int,           
     "LEARNING_RATE" : float,   
     "LOSS_WEIGHTS"  : partial(torch.tensor,dtype=torch.float64),  
-    "ACTIVATION"    : _activation      
+    "ACTIVATION"    : _activation,
+    "HARD_BOUNDARY" : bool
 }
 
 """
@@ -76,6 +78,13 @@ def load(path: str | Path) -> None:
         if value is None:
             raise ValueError(f"yamlで {key} の値がからです")
         globals()[key] = _CONVERT[key](value)
+
+"""
+格子の分割数 n (= POINTS_PER_SIDE - 1). 点の間隔は 1/n
+sampling の関数や数値解はこの分割数を受け取る
+"""
+def divisions() -> int:
+    return POINTS_PER_SIDE - 1
 
 def __getattr__(name:str):
     if name in _CONVERT:

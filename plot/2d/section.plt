@@ -1,10 +1,10 @@
 # y=0.5 の断面で複数の解を重ねて描き, ./graph/2d/section_<type1>.png に保存する
 # 使い方: gnuplot -c ./plot/2d/section.plt <type1> <type2> ...   (入力は ./out/<type>.dat, 最大 9 個)
 #
-# 格子は y=i/n (n=GRID_DENSITY 奇数) なので y=0.5 ちょうどの点はない
+# 格子は y=i/n (n = POINTS_PER_SIDE - 1 は奇数) なので y=0.5 ちょうどの点はない
 # 両隣の 2 行 (i=(n-1)/2, (n+1)/2) を smooth unique で x ごとに平均し, y=0.5 での値とする (線形補間と同じ)
 
-n = 101    # GRID_DENSITY
+n = 101    # 分割数 = POINTS_PER_SIDE - 1
 
 types = "g hard1 numerical"
 

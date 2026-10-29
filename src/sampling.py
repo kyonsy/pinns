@@ -11,21 +11,30 @@ def sample_random(NUM_SAMPLE:int,IN_FEATURES:int)->torch.Tensor:
 
 """
 各次元 [0,scale[i]) の範囲の格子点をとる. 次元数は len(scale)
-点の間隔は 1/density で全次元共通. 各次元の点数は density*scale[i] 個
+点の間隔は 1/divisions で全次元共通. 各次元の点数は divisions*scale[i] 個
 例: sample_grid(100,[2.0,1.0]) → x∈[0,2) に200点, y∈[0,1) に100点
 """
-def sample_grid(density:int,scale:Sequence[float])->torch.Tensor:
-    axes = [[x/density for x in range(round(density*s))] for s in scale]
+def sample_grid(divisions:int,scale:Sequence[float])->torch.Tensor:
+    axes = [[x/divisions for x in range(round(divisions*s))] for s in scale]
+    return torch.tensor(list(itertools.product(*axes)),device=cfg.DEVICE)
+
+"""
+sample_grid と同じだが, 各次元 [0,scale[i]] の両端を含む. 出力・グラフ用
+点の間隔は 1/divisions. 各次元の点数は divisions*scale[i]+1 個
+例: sample_grid_closed(100,[1.0,1.0]) → x,y∈[0,1] に101点ずつ
+"""
+def sample_grid_closed(divisions:int,scale:Sequence[float])->torch.Tensor:
+    axes = [[x/divisions for x in range(round(divisions*s)+1)] for s in scale]
     return torch.tensor(list(itertools.product(*axes)),device=cfg.DEVICE)
 
 """
 角が原点に接した単位正方形の外周からサンプルをとる
 """
-def sample_square_boundry(density:int) -> torch.Tensor:  
-    bottom = torch.tensor([[x/density,0] for x in range(density)])
-    right  = torch.tensor([[1,x/density] for x in range(density)])
-    top    = torch.tensor([[x/density,1] for x in range(density)])
-    left   = torch.tensor([[0,x/density] for x in range(density)])
+def sample_square_boundry(divisions:int) -> torch.Tensor:  
+    bottom = torch.tensor([[x/divisions,0] for x in range(divisions)])
+    right  = torch.tensor([[1,x/divisions] for x in range(divisions)])
+    top    = torch.tensor([[x/divisions,1] for x in range(divisions)])
+    left   = torch.tensor([[0,x/divisions] for x in range(divisions)])
     return torch.vstack([bottom,right,top,left]).to(cfg.DEVICE)
 
 

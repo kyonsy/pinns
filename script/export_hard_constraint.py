@@ -16,10 +16,11 @@ cfg.load(ROOT / "config/templete.yaml")
 
 print(f"device: {cfg.DEVICE}")
 
-n = cfg.GRID_DENSITY
+n = cfg.divisions()    # 分割数. 1辺の点数は n+1
 
 
-x, y = np.meshgrid(np.arange(n) / n, np.arange(n) / n, indexing="ij")
+# x=1, y=1 の外周も含めて正方形全体 [0,1]x[0,1] の (n+1)^2 点 (sampling.sample_grid_closed と同じ)
+x, y = np.meshgrid(np.arange(n+1) / n, np.arange(n+1) / n, indexing="ij")
 X =torch.tensor(np.column_stack([x.ravel(), y.ravel()]))
 
 

@@ -5,7 +5,7 @@
 # 使い方: gnuplot -c ./plot/3d/hard_constraint.plt   → ./graph/3d/hard_constraint.png
 
 set encoding utf8
-n = 101    # GRID_DENSITY
+n = 101    # 分割数 = POINTS_PER_SIDE - 1
 a = ceil(n/2.0)/real(n)     # 中心の4点の座標 (hard_constraint.param と同じ). real で整数割り算を避ける
 b = floor(n/2.0)/real(n)
 

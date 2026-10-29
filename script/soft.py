@@ -21,12 +21,18 @@ if len(sys.argv) > 1:
     type = sys.argv[1] 
 
 # ソフト制約では境界条件を損失関数で課すので, 出力を変換しない素の FCNN を使う
+# yaml で HARD_BOUNDARY: true なら, 外周の φ=0 だけ出力の変換で厳密に課し, 損失は方程式と中心の4点だけにする
 cfg.load(ROOT / f"config/{type}.yaml")
 
 print(f"device: {cfg.DEVICE}")
-model=fcnn.FCNN().to(cfg.DEVICE)
-train.train_soft(model)
-X_out= sampling.sample_grid(cfg.GRID_DENSITY,[1.0,1.0])
+if cfg.HARD_BOUNDARY:
+    model=fcnn.SoftCenterFCNN().to(cfg.DEVICE)
+    train.train_soft_center(model)
+else:
+    model=fcnn.FCNN().to(cfg.DEVICE)
+    train.train_soft(model)
+# 出力は x=1, y=1 の外周も含めて正方形全体 [0,1]x[0,1] でとる
+X_out= sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
 with torch.no_grad():
     Y_out=model(X_out)
 

@@ -15,7 +15,7 @@ from . import config as cfg
     
 @cache
 def param():
-    n = cfg.GRID_DENSITY
+    n = cfg.divisions()
     a,b = m.ceil(n/2)/n,m.floor(n/2)/n
     h = 1/n
     P_k = torch.tensor([[a,a],[a,b],[b,a],[b,b]])

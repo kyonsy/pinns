@@ -48,6 +48,18 @@ class PoissonFCNN2(FCNN):
         N = super().forward(X)
         return hc.G(X) * hc.L(X) + hc.D(X) * hc.C(X) * N
 
+"""
+ソフト制約用のFCNN (外周だけハード制約)
+外周の φ=0 は出力の変換で厳密に満たし, 中心の4点の φ=1 は損失関数で課す
+    φ = D*N
+    D = 16x(1-x)y(1-y) : 外周で0
+    N : ネットワーク本体の出力
+"""
+class SoftCenterFCNN(FCNN):
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        N = super().forward(X)
+        return hc.D(X) * N
+
 
 
 
