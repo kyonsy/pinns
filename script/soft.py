@@ -4,7 +4,6 @@ name は src/experiments.py の実験の名前. 一覧にない名前なら conf
 使い方: python -m script.soft [soft_w1|soft_w1e2|...]
 
 境界条件は損失関数で課すので, 出力を変換しない素の FCNN を使う
-yaml で HARD_BOUNDARY: true なら, 外周の φ=0 だけ出力の変換で厳密に課し, 損失は方程式と中心の4点だけにする
 """
 import argparse
 
@@ -20,12 +19,8 @@ def run(name:str) -> None:
     print(f"{name}: {exp.description if exp else '(一覧にない設定)'}")
     print(f"device: {config.DEVICE}")
 
-    if cfg.HARD_BOUNDARY:
-        model = fcnn.SoftCenterFCNN(cfg).to(config.DEVICE)
-        train.train_soft_center(model,cfg)
-    else:
-        model = fcnn.FCNN(cfg).to(config.DEVICE)
-        train.train_soft(model,cfg)
+    model = fcnn.FCNN(cfg).to(config.DEVICE)
+    train.train_soft(model,cfg)
     util.save_prediction(config.ROOT / f"out/{name}.dat",model,cfg.divisions())
     print("complete")
 

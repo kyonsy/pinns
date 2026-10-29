@@ -1,6 +1,6 @@
 """
 実験の一覧. 実験の名前・設定ファイル・説明はここにだけ書く
-一括実行 (script.run_all), 差と MSE (script.make_diff), グラフ (script.plot_all) はこの一覧を使う
+各スクリプトはこの一覧から設定ファイルと説明を引き, 差と MSE (script.make_diff) は比べる組をここから読む
 
 名前の付け方
     soft_...  : ソフト制約 (script.soft). w<λ> は境界の損失の重み λ
@@ -26,19 +26,9 @@ EXPERIMENTS: dict[str, Experiment] = {e.name: e for e in [
     Experiment("soft_w1e4",         "soft", "soft_w1e4",         "ソフト制約. 境界の重みを 10^4 にする"),
     Experiment("soft_w1e6",         "soft", "soft_w1e6",         "ソフト制約. 境界の重みを 10^6 にする"),
     Experiment("soft_w1_deep64",    "soft", "soft_w1_deep64",    "soft_w1 の隠れ層を 64 層にする. 格子が 101 点なので数値解とは比べられない"),
-    Experiment("soft_hardedge_w20", "soft", "soft_hardedge_w20", "外周の φ=0 だけハード制約にする. 損失の重み [方程式, 中心4点] = [1, 20]"),
     Experiment("hard_g",            "hard", "hard",              "ハード制約 φ = G + D·C·N (fcnn.PoissonFCNN1)"),
     Experiment("hard_gl",           "hard", "hard",              "ハード制約 φ = G·L + D·C·N (fcnn.PoissonFCNN2)"),
 ]}
-
-# 一括実行 (script.run_all) で学習する実験
-BATCH = ["soft_w1", "soft_w1e2", "soft_w1e4", "soft_w1e6", "hard_g", "hard_gl"]
-
-# ソフト制約で境界の重みを変えた比較 (y=0.5 の断面図 section_soft)
-SOFT_WEIGHTS = ["soft_w1", "soft_w1e2", "soft_w1e4", "soft_w1e6"]
-
-# 等高線図・曲面を描く結果
-SURFACES = BATCH + ["numerical", "hc_g", "hc_gl"]
 
 # 差をとる組 (a, b). out/diff_<a>-<b>.dat に a - b を保存する
 DIFF_PAIRS = [
@@ -50,14 +40,8 @@ DIFF_PAIRS = [
     ("hc_gl",   "numerical"),
 ]
 
-# y=0.5 の断面で重ねて描く組 (section.plt)
-SECTIONS = [
-    ["hc_g",  "hard_g",  "numerical"],
-    ["hc_gl", "hard_gl", "numerical"],
-]
-
 # 数値解との MSE を棒グラフにする手法. 並び順がそのまま棒の並び順になる
-MSE_TYPES = SOFT_WEIGHTS + ["hard_g", "hard_gl"]
+MSE_TYPES = ["soft_w1", "soft_w1e2", "soft_w1e4", "soft_w1e6", "hard_g", "hard_gl"]
 
 def diff_name(a:str, b:str) -> str:
     """a - b を保存するファイルの名前"""

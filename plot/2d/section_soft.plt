@@ -3,12 +3,12 @@
 # 使い方: gnuplot -c ./plot/2d/section_soft.plt [<type1> <type2> ...]   → ./graph/2d/section_soft.png (最大 5 個)
 
 set encoding utf8
-if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. script.plot_all からは -e "n=..." で渡す
+if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. gnuplot -e "n=..." -c ... で変えられる
 i0 = (n-1)/2    # y=0.5 の下側の行 (整数割り算)
 
 types = "numerical soft_w1 soft_w1e2 soft_w1e4 soft_w1e6"
 
-# コマンドライン引数がある場合は、そちらを types に代入 (script.plot_all は src/experiments.py の SOFT_WEIGHTS を渡す)
+# コマンドライン引数がある場合は、そちらを types に代入
 if (ARGC >= 1) {
       types = ""
       do for [k=1:ARGC] { types = types.value("ARG".k)." " }

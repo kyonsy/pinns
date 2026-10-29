@@ -39,7 +39,6 @@ _CONVERT:dict[str,Callable[[Any],Any]] = {
     "LEARNING_RATE" : float,   
     "LOSS_WEIGHTS"  : partial(torch.tensor,dtype=torch.float64),  
     "ACTIVATION"    : _activation,
-    "HARD_BOUNDARY" : bool
 }
 
 class Config:
@@ -56,7 +55,6 @@ class Config:
     LEARNING_RATE : float        # 学習率
     LOSS_WEIGHTS  : torch.Tensor # 損失関数の各項の重み
     ACTIVATION    : type[nn.Module] # 活性化関数
-    HARD_BOUNDARY : bool = False # ソフト制約で外周の φ=0 だけ出力の変換で厳密に課すか
 
     def __init__(self, values:dict[str, Any]) -> None:
         """values は yaml と同じ形の辞書 {変数名: 値}. 値は _CONVERT で変換して持つ"""

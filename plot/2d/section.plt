@@ -4,7 +4,7 @@
 # 格子は y=i/n (n = POINTS_PER_SIDE - 1 は奇数) なので y=0.5 ちょうどの点はない
 # 両隣の 2 行 (i=(n-1)/2, (n+1)/2) を smooth unique で x ごとに平均し, y=0.5 での値とする (線形補間と同じ)
 
-if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. script.plot_all からは -e "n=..." で渡す
+if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. gnuplot -e "n=..." -c ... で変えられる
 
 types = "hc_g hard_g numerical"
 

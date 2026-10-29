@@ -45,16 +45,3 @@ def train_soft(model:nn.Module,cfg:Config)->None:
     X1 = sampling.center_points(cfg.divisions())
     X.requires_grad = True
     _fit(model,cfg,lambda: loss.loss_soft(X,model(X),model(X0),model(X1),cfg.LOSS_WEIGHTS))
-
-
-def train_soft_center(model:nn.Module,cfg:Config)->None:
-    """
-    ポアソンの方程式に関するPINNの学習用関数
-    入力が2つ(x,y). 出力が一つ(φ)
-    外周の φ=0 はモデル側(SoftCenterFCNN)で固定しているので, 外周の損失用の点はサンプルしない
-    中心の4点 X1 の境界条件は損失関数で課す
-    """
-    X  = sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
-    X1 = sampling.center_points(cfg.divisions())
-    X.requires_grad = True
-    _fit(model,cfg,lambda: loss.loss_soft_center(X,model(X),model(X1),cfg.LOSS_WEIGHTS))

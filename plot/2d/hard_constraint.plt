@@ -5,7 +5,7 @@
 # 使い方: gnuplot -c ./plot/2d/hard_constraint.plt   → ./graph/2d/hard_constraint.png
 
 set encoding utf8
-if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. script.plot_all からは -e "n=..." で渡す
+if (!exists("n")) n = 101    # 分割数 = POINTS_PER_SIDE - 1. gnuplot -e "n=..." -c ... で変えられる
 a = ceil(n/2.0)/real(n)     # 中心の4点の座標 (hard_constraint.param と同じ). real で整数割り算を避ける
 b = floor(n/2.0)/real(n)
 
