@@ -6,3 +6,4 @@ ACTIVATION: tanh
 EPOCH: 10000
 POINTS_PER_SIDE: 102
 LEARNING_RATE: 1.0e-3
+SEED: 0                         # 乱数のシード (重みの初期値が毎回同じになる)

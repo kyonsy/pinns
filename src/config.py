@@ -1,45 +1,24 @@
 from __future__ import annotations
-from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
-from functools import partial
 
 import torch
 import torch.nn as nn
 import yaml
 
 # プロジェクトのルート (src/ の1つ上). config/ や out/ はここからの相対パスで指す
-ROOT          : Path = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent
 
-# 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU (yaml では変えない定数)
-DEVICE        : torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# 計算に使うデバイス. GPU(CUDA)が使えればGPU, なければCPU
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# yaml で活性化関数を名前指定するための対応表
-_ACTIVATIONS: dict[str, type[nn.Module]] = {
+# yaml で活性化関数を名前で指定するための対応表
+ACTIVATIONS = {
     "tanh"    : nn.Tanh,
     "relu"    : nn.ReLU,
     "sigmoid" : nn.Sigmoid,
     "gelu"    : nn.GELU,
     "silu"    : nn.SiLU,
-}
-
-def _activation(name:str)->type[nn.Module]:
-    if name not in _ACTIVATIONS:
-        raise ValueError(f"未対応の活性化関数:{name} (候補: {list(_ACTIVATIONS)})")
-    return _ACTIVATIONS[name] 
-
-# 変数名 -> 変数変換
-_CONVERT:dict[str,Callable[[Any],Any]] = {
-    "IN_FEATURES"   : int,           
-    "OUT_FEATURES"  : int,          
-    "NUM_LAYERS"    : int,            
-    "WIDTH"         : int,                 
-    "EPOCH"         : int,                  
-    "POINTS_PER_SIDE": int,          
-    "LEARNING_RATE" : float,   
-    "LOSS_WEIGHTS"  : partial(torch.tensor,dtype=torch.float64),  
-    "ACTIVATION"    : _activation,
 }
 
 @dataclass(frozen=True)
@@ -57,27 +36,26 @@ class Config:
     LEARNING_RATE  : float | None           = None  # 学習率
     LOSS_WEIGHTS   : torch.Tensor | None    = None  # 損失関数の各項の重み [方程式, 外周, 中心4点]
     ACTIVATION     : type[nn.Module] | None = None  # 活性化関数
+    SEED           : int | None             = None  # 乱数のシード
 
     def divisions(self) -> int:
-        """
-        格子の分割数 n (= POINTS_PER_SIDE - 1). 点の間隔は 1/n
-        sampling の関数や数値解はこの分割数を受け取る
-        """
+        """格子の分割数 n (= POINTS_PER_SIDE - 1). 点の間隔は 1/n"""
         return self.POINTS_PER_SIDE - 1
 
-def from_dict(data:dict[str, Any]) -> Config:
-    """yaml と同じ形の辞書 {変数名: 値} から Config を作る. 値は _CONVERT で変換する"""
-    values: dict[str, Any] = {}
-    for key, value in data.items():
-        if key not in _CONVERT:
-            raise KeyError(f"yamlに未知の変数があります: {key}")
-        if value is None:
-            raise ValueError(f"yamlで {key} の値がからです")
-        values[key] = _CONVERT[key](value)
-    return Config(**values)
-
 def load(path: str | Path) -> Config:
-    """yamlファイルを読んで Config を作る"""
+    """
+    yamlファイルを読んで Config を作る
+    yaml に Config にない項目があるとエラー (TypeError: unexpected keyword argument) になる
+    """
     with open(path, encoding="utf-8") as f:
-        data: dict[str, Any] = yaml.safe_load(f) or {}
-    return from_dict(data)
+        data = yaml.safe_load(f) or {}
+
+    # yaml のままでは使えない値を変換する
+    if "ACTIVATION" in data:
+        data["ACTIVATION"] = ACTIVATIONS[data["ACTIVATION"]]
+    if "LOSS_WEIGHTS" in data:
+        data["LOSS_WEIGHTS"] = torch.tensor(data["LOSS_WEIGHTS"], dtype=torch.float64)
+    if "LEARNING_RATE" in data:
+        data["LEARNING_RATE"] = float(data["LEARNING_RATE"])   # 1e-3 のように書くと yaml では文字列になるため
+
+    return Config(**data)

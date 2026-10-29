@@ -8,3 +8,4 @@ EPOCH: 10000
 POINTS_PER_SIDE: 102
 LEARNING_RATE: 1.0e-3
 LOSS_WEIGHTS: [1.0, 1.0, 1.0]   # [方程式, 外周(φ=0), 中心4点(φ=1)]
+SEED: 0                         # 乱数のシード (重みの初期値が毎回同じになる)
