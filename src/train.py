@@ -12,8 +12,8 @@ def train_hard(model:nn.Module,cfg:Config)->None:
     境界条件(外周で φ=0, 中心の4点で φ=1)はモデル側(PoissonFCNN)で固定している
     """
     optimizer=optim.Adam(model.parameters(),lr=cfg.LEARNING_RATE)
-    # 格子点は毎回同じなので, ループの外で1回だけ作る
-    X  = sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
+    # 方程式の残差は外周と中心の4点を除いた内側の点でとる. 点は毎回同じなので, ループの外で1回だけ作る
+    X  = sampling.sample_interior(cfg.divisions())
     X.requires_grad = True
 
     for i in range(cfg.EPOCH):
@@ -33,8 +33,9 @@ def train_soft(model:nn.Module,cfg:Config)->None:
     外周 X0 と中心の4点 X1 の境界条件は損失関数で課す
     """
     optimizer=optim.Adam(model.parameters(),lr=cfg.LEARNING_RATE)
-    # 格子点は毎回同じなので, ループの外で1回だけ作る
-    X  = sampling.sample_grid_closed(cfg.divisions(),[1.0,1.0])
+    # 方程式の残差は外周と中心の4点を除いた内側の点 X でとり, 境界条件は X0, X1 でとる
+    # 点は毎回同じなので, ループの外で1回だけ作る
+    X  = sampling.sample_interior(cfg.divisions())
     X0 = sampling.sample_square_boundry(cfg.divisions())
     X1 = sampling.center_points(cfg.divisions())
     X.requires_grad = True

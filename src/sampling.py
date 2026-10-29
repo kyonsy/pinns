@@ -1,4 +1,3 @@
-import itertools
 import math
 
 import numpy as np
@@ -27,13 +26,17 @@ def center_points(divisions:int) -> torch.Tensor:
     a, b = i/divisions, j/divisions
     return torch.tensor([[a,a],[a,b],[b,a],[b,b]],device=DEVICE)
 
-def sample_grid_closed(divisions:int,scale:list[float])->torch.Tensor:
+def sample_interior(divisions:int) -> torch.Tensor:
     """
-    各次元 [0,scale[i]] の格子点を両端を含めてとる (学習用, float32). 間隔は 1/divisions
-    例: sample_grid_closed(100,[1.0,1.0]) → x,y∈[0,1] に101点ずつ
+    ラプラス方程式の残差を計算する点 (学習用, float32). 間隔 1/n の格子点のうち,
+    外周と中心の4点 (境界条件で値が決まっている点) を除いたもの. 差分法の数値解も, この点でだけ方程式を課している
+    中心の4点では正しい解でも Δφ=0 にならない (φ がそこで尖っている) ので, 含めると無理な条件になる
     """
-    axes = [[x/divisions for x in range(round(divisions*s)+1)] for s in scale]
-    return torch.tensor(list(itertools.product(*axes)),device=DEVICE)
+    n = divisions
+    c1, c2 = center_indices(n)
+    centers = [(c1,c1), (c1,c2), (c2,c1), (c2,c2)]
+    points = [[i/n, j/n] for i in range(1, n) for j in range(1, n) if (i, j) not in centers]
+    return torch.tensor(points,device=DEVICE)
 
 def sample_square_boundry(divisions:int) -> torch.Tensor:
     """[0,1]x[0,1] の外周の点"""
